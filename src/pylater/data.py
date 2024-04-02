@@ -9,7 +9,7 @@ import scipy.stats
 
 class Dataset:
 
-    __slots__ = ("name", "rt_s", "promptness", "ecdf_p")
+    __slots__ = ("name", "rt_s", "promptness", "ecdf_p", "ecdf_x")
 
     _T = typing.TypeVar("_T", bound=npt.NBitBase)
 
@@ -19,7 +19,10 @@ class Dataset:
 
         self.promptness = 1.0 / self.rt_s.astype(float)
 
-        self.ecdf_p = 1 - scipy.stats.ecdf(sample=self.rt_s).cdf.probabilities
+        ecdf = scipy.stats.ecdf(sample=self.rt_s).cdf
+
+        self.ecdf_p = 1 - ecdf.probabilities
+        self.ecdf_x = ecdf.quantiles
 
 
 @dataclasses.dataclass
