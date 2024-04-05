@@ -29,3 +29,9 @@ def load_cw1995() -> dict[str, pylater.data.Dataset]:
     }
 
     return datasets
+
+
+def __getattr__(name:str) -> dict[str, pylater.data.Dataset]:
+
+    if name == "cw1995":
+        return load_cw1995()
