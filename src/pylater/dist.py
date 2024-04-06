@@ -77,6 +77,29 @@ def model(
     )
 
 
+class LATER:
+
+    def __new__(
+        cls,
+        name: str,
+        mu: float | pm.Distribution,
+        sigma: float | pm.Distribution,
+        sigma_e: float | pm.Distribution,
+        observed: npt.NDArray | None = None,
+    ):
+
+        return pm.CustomDist(
+            name,
+            mu,
+            sigma,
+            sigma_e,
+            logp=logp,
+            random=random,
+            observed=observed,
+        )
+
+
+
 
 def symbolic_p():
 

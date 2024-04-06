@@ -17,7 +17,7 @@ def demo():
         sigma = pm.HalfNormal("sigma", sigma=3)
         sigma_e = pm.HalfNormal("sigma_e", sigma=5)
 
-        pylater.dist.model(
+        pylater.dist.LATER(
             name="obs",
             mu=mu,
             sigma=sigma,
