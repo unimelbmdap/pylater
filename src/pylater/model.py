@@ -1,10 +1,9 @@
 
-import numpy as np
 
 import pymc as pm
 
-import pylater.examples
 import pylater.dist
+import pylater.examples
 
 
 def demo():

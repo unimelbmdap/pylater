@@ -1,6 +1,6 @@
-import importlib.resources
-import csv
 import collections
+import csv
+import importlib.resources
 import pathlib
 
 import numpy as np

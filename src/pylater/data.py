@@ -1,9 +1,8 @@
-import typing
 import dataclasses
+import typing
 
 import numpy as np
 import numpy.typing as npt
-
 import scipy.stats
 
 

@@ -1,10 +1,8 @@
 
+import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
-
 import scipy.stats
-
-import matplotlib.pyplot as plt
 
 
 def probit_forward(values: npt.ArrayLike) -> npt.NDArray:

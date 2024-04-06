@@ -1,12 +1,9 @@
 
 import numpy as np
 import numpy.typing as npt
-
-import sympy
-
 import pymc as pm
-
 import pytensor.tensor
+import sympy
 
 
 def logp(
