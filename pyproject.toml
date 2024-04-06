@@ -89,9 +89,11 @@ module = [
 ]
 ignore_missing_imports = true
 
-[tool.black]
+[tool.ruff]
 line-length = 88
-preview = false
-skip-source-first-line = false
-skip-string-normalization = false
-skip-magic-trailing-comma = false
+extend-select = [
+  "NPY",  # numpy
+  "PTH",  # flake8-usepathlib
+	"Q",  # flake8-quotes
+	"ANN",  # flake8-annotations
+]
