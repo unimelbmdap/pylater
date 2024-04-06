@@ -28,40 +28,35 @@ Documentation = "https://github.com/unknown/pylater#readme"
 Issues = "https://github.com/unknown/pylater/issues"
 Source = "https://github.com/unknown/pylater"
 
-[tool.hatch.version]
-path = "src/pylater/__about__.py"
-
-[dirs.env]
-virtual = ".virtualenvs"
-
-[tool.hatch.envs.default]
-dependencies = [
+[tool.hatch]
+version.path = "src/pylater/__about__.py"
+envs.default.dependencies = [
   "numpy",
   "scipy",
   "pymc",
   "sympy",
 ]
-
-[tool.hatch.envs.interactive]
-dependencies = [
+envs.interactive.dependencies = [
   "ipython",
   "matplotlib",
   "pyqt6",
   "pickleshare",
 ]
-[tool.hatch.envs.interactive.scripts]
-i = "ipython --pylab=qt"
+envs.interactive.scripts.i = "ipython --pylab=qt"
+envs.types.extra-dependencies = [
+  "mypy"
+]
+envs.types.scripts.check = "mypy {args:src/pylater tests}"
 
+envs.docs.dependencies = [
+  "sphinx",
+  "sphinx_rtd_theme",
+  "nbsphinx",
+]
 
 [[tool.hatch.envs.all.matrix]]
 python = ["3.10", "3.11", "3.12"]
 
-[tool.hatch.envs.types]
-dependencies = [
-  "mypy>=1.0.0",
-]
-[tool.hatch.envs.types.scripts]
-check = "mypy {args:src/pylater tests}"
 
 [tool.mypy]
 plugins = "numpy.typing.mypy_plugin"
@@ -83,8 +78,8 @@ extra_checks = true
 
 [[tool.mypy.overrides]]
 module = [
-	"scipy",
-	"scipy.stats",
+  "scipy",
+  "scipy.stats",
   "pymc",
 ]
 ignore_missing_imports = true
@@ -94,6 +89,6 @@ line-length = 88
 extend-select = [
   "NPY",  # numpy
   "PTH",  # flake8-usepathlib
-	"Q",  # flake8-quotes
-	"ANN",  # flake8-annotations
+  "Q",  # flake8-quotes
+  "ANN",  # flake8-annotations
 ]
