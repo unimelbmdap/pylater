@@ -10,7 +10,7 @@ def demo():
 
     data = pylater.examples.load_cw1995()["a_p95"]
 
-    with pm.Model() as model:
+    with pm.Model(check_bounds=False) as model:
 
         mu = pm.Normal("mu", mu=3, sigma=1.5)
         sigma = pm.HalfNormal("sigma", sigma=3)
@@ -34,7 +34,7 @@ def demo_shared():
 
     data = {key: value for (key, value) in data.items() if key.startswith("b")}
 
-    with pm.Model() as model:
+    with pm.Model(check_bounds=False) as model:
 
         mu = pm.Normal("mu", mu=3, sigma=1.5, size=len(data))
         sigma = pm.HalfNormal("sigma", sigma=3)

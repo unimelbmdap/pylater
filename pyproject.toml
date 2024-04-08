@@ -36,7 +36,7 @@ envs.default.dependencies = [
   "pymc",
   "sympy",
 ]
-envs.interactive.dependencies = [
+envs.interactive.extra-dependencies = [
   "ipython",
   "matplotlib",
   "pyqt6",
@@ -48,7 +48,7 @@ envs.types.extra-dependencies = [
 ]
 envs.types.scripts.check = "mypy {args:src/pylater tests}"
 
-envs.docs.dependencies = [
+envs.docs.extra-dependencies = [
   "sphinx",
   "sphinx_rtd_theme",
   "nbsphinx",

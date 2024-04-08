@@ -1,8 +1,23 @@
+
 # pylater
 
+A Python library for working with LATER ('Linear Approach to Threshold with Ergodic Rate for Reaction Times') models using Bayesian methods in PyMC.
 
 
-## Getting started
+## Installation
+
+The library can be installed using `pip`:
+
+```bash
+pip install pylater
+```
+
+## Usage
+
+
+
+
+
 
 To make it easy for you to get started with GitLab, here's a list of recommended next steps.
 

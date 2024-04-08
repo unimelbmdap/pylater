@@ -2,21 +2,21 @@
 import numpy as np
 import numpy.typing as npt
 import pymc as pm
-import pytensor.tensor
+import pytensor.tensor as pt
 import sympy
 
 
-def logp(
-    value: pytensor.tensor.TensorVariable,
-    mu: pytensor.tensor.TensorVariable,
-    sigma: pytensor.tensor.TensorVariable,
-    sigma_e: pytensor.tensor.TensorVariable,
-) -> pytensor.tensor.TensorVariable:
+def logp_(
+    value: pt.TensorVariable,
+    mu: pt.TensorVariable,
+    sigma: pt.TensorVariable,
+    sigma_e: pt.TensorVariable,
+) -> pt.TensorVariable:
 
     early_mu = 0
 
-    exp = pytensor.tensor.exp
-    erf = pytensor.tensor.erf
+    exp = pt.exp
+    erf = pt.erf
 
     sqrt_2 = np.sqrt(2)
 
@@ -33,7 +33,29 @@ def logp(
         ) / (2 * np.sqrt(2 * np.pi))
     )
 
-    return pytensor.tensor.log(p)
+    return pt.log(p)
+
+def logp(
+    value: pt.TensorVariable,
+    mu: pt.TensorVariable,
+    sigma: pt.TensorVariable,
+    sigma_e: pt.TensorVariable,
+) -> pt.TensorVariable:
+
+    early_mu = 0
+
+    a = (
+        pm.Normal.logp(value=value, mu=mu, sigma=sigma)
+        + pm.Normal.logcdf(value=value, mu=early_mu, sigma=sigma_e)
+    )
+    b = (
+        pm.Normal.logp(value=value, mu=early_mu, sigma=sigma_e)
+        + pm.Normal.logcdf(value=value, mu=mu, sigma=sigma)
+    )
+
+    logp = pt.logsumexp(x=pt.stack(tensors=(a, b), axis=0), axis=0)
+
+    return logp
 
 
 def random(
