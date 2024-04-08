@@ -1,4 +1,4 @@
-from .dist import LATER
+from pylater.dist import LATER
 
 __all__ = (
     "LATER",

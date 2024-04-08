@@ -92,3 +92,6 @@ extend-select = [
   "Q",  # flake8-quotes
   "ANN",  # flake8-annotations
 ]
+lint.ignore = [
+	"ANN101",  # typing self
+]

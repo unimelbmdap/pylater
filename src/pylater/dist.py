@@ -3,44 +3,14 @@ import numpy as np
 import numpy.typing as npt
 import pymc as pm
 import pytensor.tensor as pt
-import sympy
 
-
-def logp_(
-    value: pt.TensorVariable,
-    mu: pt.TensorVariable,
-    sigma: pt.TensorVariable,
-    sigma_e: pt.TensorVariable,
-) -> pt.TensorVariable:
-
-    early_mu = 0
-
-    exp = pt.exp
-    erf = pt.erf
-
-    sqrt_2 = np.sqrt(2)
-
-    p = (
-        (
-            (
-                exp(-(((value - mu)**2) / (2 * sigma**2)))
-                * (1 + erf((value - early_mu) / (sqrt_2 * sigma_e)))
-            ) / sigma
-            + (
-                exp(-(((value - early_mu)**2) / (2 * sigma_e**2)))
-                * (1 + erf((value - mu) / (sqrt_2 * sigma)))
-            ) / sigma_e
-        ) / (2 * np.sqrt(2 * np.pi))
-    )
-
-    return pt.log(p)
 
 def logp(
-    value: pt.TensorVariable,
-    mu: pt.TensorVariable,
-    sigma: pt.TensorVariable,
-    sigma_e: pt.TensorVariable,
-) -> pt.TensorVariable:
+    value: pt.TensorVariable,  # type: ignore
+    mu: pt.TensorVariable,  # type: ignore
+    sigma: pt.TensorVariable,  # type: ignore
+    sigma_e: pt.TensorVariable,  # type: ignore
+) -> pt.TensorVariable:  # type: ignore
 
     early_mu = 0
 
@@ -53,18 +23,16 @@ def logp(
         + pm.Normal.logcdf(value=value, mu=mu, sigma=sigma)
     )
 
-    logp = pt.logsumexp(x=pt.stack(tensors=(a, b), axis=0), axis=0)
-
-    return logp
+    return pt.logsumexp(x=pt.stack(tensors=(a, b), axis=0), axis=0)  # type: ignore
 
 
 def random(
-    mu: np.ndarray | float,
-    sigma: np.ndarray | float,
-    sigma_e: np.ndarray | float,
+    mu: npt.NDArray[np.float_] | float,
+    sigma: npt.NDArray[np.float_] | float,
+    sigma_e: npt.NDArray[np.float_] | float,
     rng: np.random.Generator | None = None,
     size : tuple[int] | None =None,
-) -> np.ndarray | float:
+) -> npt.NDArray[np.float_] | float:
 
     if rng is None:
         rng = np.random.default_rng()
@@ -72,9 +40,7 @@ def random(
     later = rng.normal(loc=mu, scale=sigma, size=size)
     early = rng.normal(loc=0, scale=sigma_e, size=size)
 
-    y = np.where(later > early, later, early)
-
-    return y
+    return np.where(later > early, later, early)
 
 
 def model(
@@ -82,7 +48,7 @@ def model(
     mu: float | pm.Distribution,
     sigma: float | pm.Distribution,
     sigma_e: float | pm.Distribution,
-    observed: npt.NDArray | None = None,
+    observed: npt.NDArray[np.float_] | None = None,
 ) -> pm.Distribution:
 
     return pm.CustomDist(
@@ -104,8 +70,8 @@ class LATER:
         mu: float | pm.Distribution,
         sigma: float | pm.Distribution,
         sigma_e: float | pm.Distribution,
-        observed: npt.NDArray | None = None,
-    ):
+        observed: npt.NDArray[np.float_] | None = None,
+    ) -> pm.CustomDist:
 
         return pm.CustomDist(
             name,
@@ -116,44 +82,3 @@ class LATER:
             random=random,
             observed=observed,
         )
-
-
-
-
-def symbolic_p():
-
-    mu, sigma, sigma_e, x = sympy.symbols("mu sigma sigma_e x")
-
-    exp = sympy.exp
-    erf = sympy.erf
-
-    p = (
-        (
-            (
-                exp(-(((x - mu)**2) / (2 * sigma**2)))
-                * (1 + erf((x - mu) / (sympy.sqrt(2) * sigma_e)))
-            ) / sigma
-            + (
-                exp(-(((x - 0)**2) / (2 * sigma_e**2)))
-                * (1 + erf((x - mu) / (sympy.sqrt(2) * sigma)))
-            ) / sigma_e
-        ) / (2 * sympy.sqrt(2 * sympy.pi))
-    )
-
-    return p
-
-
-def symbolic_normal(subscript="_1"):
-
-    mu = sympy.Symbol(f"mu{subscript}")
-    sigma = sympy.Symbol(f"sigma{subscript}")
-    x = sympy.Symbol(f"x{subscript}")
-
-    p = (
-        (1 / (sigma * sympy.sqrt(2 * sympy.pi))) *
-        sympy.exp(
-            -1 * (((x - mu) ** 2) / (2 * sigma ** 2))
-        )
-    )
-
-    return p
