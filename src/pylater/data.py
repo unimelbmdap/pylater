@@ -1,5 +1,10 @@
 import dataclasses
 import typing
+import functools
+import collections
+import csv
+import importlib.resources
+import pathlib
 
 import numpy as np
 import numpy.typing as npt
@@ -24,42 +29,33 @@ class Dataset:
         self.ecdf_x = ecdf.quantiles
 
 
-@dataclasses.dataclass
-class FitSettings:
-    share_a: bool = False
-    share_sigma: bool = False
-    share_sigma_e: bool = False
-    with_early_component: bool = False
-    intercept_form: bool = False
+@functools.lru_cache
+def load_cw1995() -> dict[str, Dataset]:
+
+    csv_dir = importlib.resources.files("pylater.resources")
+    csv_path = pathlib.Path(str(csv_dir.joinpath("Carpenter_Williams_Nature_1995.csv")))
+
+    temp_data: dict[str, list[float]] = collections.defaultdict(list)
+
+    with csv_path.open(newline="", encoding="utf-8-sig") as handle:
+
+        reader = csv.DictReader(handle)
+
+        for row in reader:
+            name = "_".join([row["participant"], row["condition"]])
+            temp_data[name].append(float(row["time"]) / 1000.0)
+
+    datasets = {
+        name: Dataset(name=name, rt_s=np.array(rt_s))
+        for (name, rt_s) in temp_data.items()
+    }
+
+    return datasets
 
 
-class FitParams:
+def __getattr__(name:str) -> dict[str, Dataset]:
 
-    def __init__(
-        self,
-        datasets: typing.Sequence[Dataset],
-        fit_settings: FitSettings
-    ) -> None:
+    if name == "cw1995":
+        return load_cw1995()
 
-        self.n_datasets = len(datasets)
-
-        self.n_a = 1 if fit_settings.share_a else self.n_datasets
-        self.n_sigma = 1 if fit_settings.share_sigma else self.n_datasets
-        self.n_sigma_e = (
-            0 if not fit_settings.with_early_component
-            else (1 if fit_settings.share_sigma_e else self.n_datasets)
-        )
-        self.n_mu = self.n_datasets if fit_settings.intercept_form else self.n_a
-
-
-
-def fit_data(
-    data: Dataset | typing.Sequence[Dataset],
-    fit_settings: FitSettings,
-) -> None:
-
-    datasets = (data,) if isinstance(data, Dataset) else data
-
-    n_datasets = len(datasets)
-
-
+    raise AttributeError(f"No known attribute named {name}")

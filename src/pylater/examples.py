@@ -2,12 +2,14 @@ import collections
 import csv
 import importlib.resources
 import pathlib
+import functools
 
 import numpy as np
 
 import pylater.data
 
 
+@functools.lru_cache
 def load_cw1995() -> dict[str, pylater.data.Dataset]:
 
     csv_dir = importlib.resources.files("pylater.resources")
@@ -35,3 +37,5 @@ def __getattr__(name:str) -> dict[str, pylater.data.Dataset]:
 
     if name == "cw1995":
         return load_cw1995()
+
+    raise AttributeError(f"No known attribute named {name}")

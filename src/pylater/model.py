@@ -8,7 +8,7 @@ import pylater.examples
 
 def demo():
 
-    data = pylater.examples.load_cw1995()["a_p95"]
+    data = pylater.examples.cw1995["a_p95"]
 
     with pm.Model(check_bounds=False) as model:
 
@@ -21,7 +21,7 @@ def demo():
             mu=mu,
             sigma=sigma,
             sigma_e=sigma_e,
-            observed=data.promptness,
+            observed=data.rt_s,
         )
 
     return model

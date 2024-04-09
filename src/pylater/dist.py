@@ -43,25 +43,6 @@ def random(
     return np.where(later > early, later, early)
 
 
-def model(
-    name: str,
-    mu: float | pm.Distribution,
-    sigma: float | pm.Distribution,
-    sigma_e: float | pm.Distribution,
-    observed: npt.NDArray[np.float_] | None = None,
-) -> pm.Distribution:
-
-    return pm.CustomDist(
-        name,
-        mu,
-        sigma,
-        sigma_e,
-        logp=logp,
-        random=random,
-        observed=observed,
-    )
-
-
 class LATER:
 
     def __new__(
@@ -73,6 +54,8 @@ class LATER:
         observed: npt.NDArray[np.float_] | None = None,
     ) -> pm.CustomDist:
 
+        observed_promptness = 1 / observed if observed is not None else None
+
         return pm.CustomDist(
             name,
             mu,
@@ -80,5 +63,5 @@ class LATER:
             sigma_e,
             logp=logp,
             random=random,
-            observed=observed,
+            observed=observed_promptness,
         )
