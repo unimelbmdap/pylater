@@ -3,12 +3,11 @@
 import pymc as pm
 
 import pylater.dist
-import pylater.examples
 
 
 def demo():
 
-    data = pylater.examples.cw1995["a_p95"]
+    data = pylater.data.cw1995["a_p95"]
 
     with pm.Model(check_bounds=False) as model:
 
@@ -30,7 +29,7 @@ def demo():
 
 def demo_shared():
 
-    data = pylater.examples.load_cw1995()
+    data = pylater.data.cw1995
 
     data = {key: value for (key, value) in data.items() if key.startswith("b")}
 
