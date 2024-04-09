@@ -54,7 +54,10 @@ envs.docs.extra-dependencies = [
   "nbsphinx",
 ]
 
-[[tool.hatch.envs.all.matrix]]
+envs.tests.extra-dependencies = ["pytest"]
+envs.tests.scripts.test = "pytest"
+
+[[tool.hatch.envs.tests.matrix]]
 python = ["3.10", "3.11", "3.12"]
 
 

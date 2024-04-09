@@ -1,4 +1,3 @@
-import dataclasses
 import typing
 import functools
 import collections
@@ -45,12 +44,10 @@ def load_cw1995() -> dict[str, Dataset]:
             name = "_".join([row["participant"], row["condition"]])
             temp_data[name].append(float(row["time"]) / 1000.0)
 
-    datasets = {
+    return {
         name: Dataset(name=name, rt_s=np.array(rt_s))
         for (name, rt_s) in temp_data.items()
     }
-
-    return datasets
 
 
 def __getattr__(name:str) -> dict[str, Dataset]:
@@ -58,4 +55,6 @@ def __getattr__(name:str) -> dict[str, Dataset]:
     if name == "cw1995":
         return load_cw1995()
 
-    raise AttributeError(f"No known attribute named {name}")
+    error_info = f"No known attribute named {name}"
+
+    raise AttributeError(error_info)

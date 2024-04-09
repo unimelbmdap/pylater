@@ -5,6 +5,30 @@ import pymc as pm
 import pytensor.tensor as pt
 
 
+class LATER:
+
+    def __new__(
+        cls,
+        name: str,
+        mu: float | pm.Distribution,
+        sigma: float | pm.Distribution,
+        sigma_e: float | pm.Distribution,
+        observed: npt.NDArray[np.float_] | None = None,
+    ) -> pm.CustomDist:
+
+        observed_promptness = 1 / observed if observed is not None else None
+
+        return pm.CustomDist(
+            name,
+            mu,
+            sigma,
+            sigma_e,
+            logp=logp,
+            random=random,
+            observed=observed_promptness,
+        )
+
+
 def logp(
     value: pt.TensorVariable,  # type: ignore
     mu: pt.TensorVariable,  # type: ignore
@@ -31,7 +55,7 @@ def random(
     sigma: npt.NDArray[np.float_] | float,
     sigma_e: npt.NDArray[np.float_] | float,
     rng: np.random.Generator | None = None,
-    size : tuple[int] | None =None,
+    size : tuple[int] | None = None,
 ) -> npt.NDArray[np.float_] | float:
 
     if rng is None:
@@ -43,25 +67,3 @@ def random(
     return np.where(later > early, later, early)
 
 
-class LATER:
-
-    def __new__(
-        cls,
-        name: str,
-        mu: float | pm.Distribution,
-        sigma: float | pm.Distribution,
-        sigma_e: float | pm.Distribution,
-        observed: npt.NDArray[np.float_] | None = None,
-    ) -> pm.CustomDist:
-
-        observed_promptness = 1 / observed if observed is not None else None
-
-        return pm.CustomDist(
-            name,
-            mu,
-            sigma,
-            sigma_e,
-            logp=logp,
-            random=random,
-            observed=observed_promptness,
-        )
