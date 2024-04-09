@@ -1,4 +1,3 @@
-
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
@@ -30,7 +29,6 @@ def probit_inverse(values: npt.ArrayLike) -> npt.NDArray:
 
 
 def get_reciprobit_figure():
-
     # not really working yet
 
     (fig, ax) = plt.subplots()

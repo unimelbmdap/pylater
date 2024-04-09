@@ -1,13 +1,9 @@
-
-import pytest
-
 import numpy as np
 
 import pylater.dist
 
 
 def test_logp() -> None:
-
     value = 1.0
     mu = 3.0
     sigma = 1.0
@@ -24,14 +20,13 @@ def test_logp() -> None:
         value=np.ones(shape) * value,
         mu=np.ones(shape) * mu,
         sigma=np.ones(shape) * sigma,
-        sigma_e = np.ones(shape) * sigma_e,
+        sigma_e=np.ones(shape) * sigma_e,
     ).eval()
 
     assert nd_logp.shape == shape
 
 
 def test_random() -> None:
-
     mu = 3.0
     sigma = 1.0
     sigma_e = 5.0
