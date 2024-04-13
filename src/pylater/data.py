@@ -13,9 +13,7 @@ import scipy.stats
 class Dataset:
     __slots__ = ("name", "rt_s", "promptness", "ecdf_p", "ecdf_x")
 
-    _T = typing.TypeVar("_T", bound=npt.NBitBase)
-
-    def __init__(self, name: str, rt_s: npt.NDArray[np.number[_T]]) -> None:
+    def __init__(self, name: str, rt_s: npt.NDArray[np.float_]) -> None:
         self.name = name
         self.rt_s = rt_s
 
