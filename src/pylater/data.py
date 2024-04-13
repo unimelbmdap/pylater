@@ -21,7 +21,7 @@ class Dataset:
 
         ecdf = scipy.stats.ecdf(sample=self.rt_s).cdf
 
-        self.ecdf_p = 1 - ecdf.probabilities
+        self.ecdf_p = ecdf.probabilities
         self.ecdf_x = ecdf.quantiles
 
 

@@ -28,7 +28,7 @@ def format_reciprobit_axes(
 
 
 def invert(values: npt.ArrayLike) -> npt.NDArray[np.float_]:
-    return 1 / np.array(values)
+    return -1 / np.array(values)
 
 
 def probit_forward(values: npt.ArrayLike) -> npt.NDArray[np.float_]:
