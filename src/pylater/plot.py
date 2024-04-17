@@ -166,6 +166,9 @@ def reciprobit_figure() -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]
     ax.set_yscale(value="probit")
     ax.set_yticks(ticks=y_ticks)
 
+    #ax_z = ax.secondary_yaxis(location="right")
+    #ax_z.set_yticks(ticks=y_ticks)
+
     return (fig, ax)
 
 

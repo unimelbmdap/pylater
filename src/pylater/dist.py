@@ -21,6 +21,7 @@ class LATER:
             sigma,
             sigma_e,
             logp=logp,
+            logcdf=logcdf,
             random=random,
             observed=observed_promptness,
         )
@@ -42,6 +43,20 @@ def logp(
     )
 
     return pt.logsumexp(x=pt.stack(tensors=(a, b), axis=0), axis=0)  # type: ignore
+
+
+def logcdf(
+    value: pt.TensorVariable,  # type: ignore
+    mu: pt.TensorVariable,  # type: ignore
+    sigma: pt.TensorVariable,  # type: ignore
+    sigma_e: pt.TensorVariable,  # type: ignore
+) -> pt.TensorVariable:  # type: ignore
+    early_mu = 0
+
+    a = pm.Normal.logcdf(value=value, mu=early_mu, sigma=sigma_e)
+    b = pm.Normal.logcdf(value=value, mu=mu, sigma=sigma)
+
+    return a + b
 
 
 def random(
