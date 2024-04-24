@@ -13,7 +13,6 @@ This library provides three main features:
 * A visualisation helper to produce matplotlib figures in the 'reciprobit' space used by LATER practitioners.
 * Example data digitised from Carpenter & Williams (1995).
 
-
 ## Installation
 
 The library can be installed using `pip`:
@@ -51,6 +50,12 @@ hatch fmt
 
 ```bash
 hatch run tests:test
+```
+
+### Docs
+
+```bash
+hatch run docs:build
 ```
 
 ### Interactive use

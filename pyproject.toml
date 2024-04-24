@@ -29,7 +29,7 @@ Issues = "https://github.com/unknown/pylater/issues"
 Source = "https://github.com/unknown/pylater"
 
 [tool.hatch]
-version.path = "src/pylater/__about__.py"
+version.path = "src/pylater/__init__.py"
 envs.default.dependencies = [
   "numpy",
   "scipy",
@@ -48,6 +48,7 @@ envs.types.extra-dependencies = [
 ]
 envs.types.scripts.check = "mypy {args:src/pylater tests}"
 
+envs.docs.scripts.build = "sphinx-build docs/ public"
 envs.docs.extra-dependencies = [
   "sphinx",
   "sphinx_rtd_theme",
