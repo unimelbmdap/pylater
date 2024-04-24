@@ -7,7 +7,11 @@ The LATER model stipulates that a distribution of recorded reaction times (e.g.,
 The primary distribution has free parameters for location ($\mu$) and scale ($\sigma$) and the other distribution, called the 'early' distribution, has a fixed location parameter ($\mu_e = 0$) and a free scale parameter ($\sigma_e$).
 According to the LATER model, a response time on a single trial is given by the reciprocal of the maximum of independent draws from these two distributions.
 
-This library 
+This library provides three main features:
+
+* A LATER distribution class that can be used in PyMC models.
+* A visualisation helper to produce matplotlib figures in the 'reciprobit' space used by LATER practitioners.
+* Example data digitised from Carpenter & Williams (1995).
 
 
 ## Installation
@@ -53,3 +57,7 @@ hatch run tests:test
 
 ```bash
 hatch run interactive:session
+
+## References
+
+* Carpenter, R.H.S. & Williams, M.L.L. (1995) Neural computation of log likelihood in control of saccadic eye movements. *Nature, 377* (6544), 59–62. [doi: 10.1038/377059a0](https://doi.org/10.1038/377059a0)
