@@ -42,7 +42,7 @@ envs.interactive.extra-dependencies = [
   "pyqt6",
   "pickleshare",
 ]
-envs.interactive.scripts.i = "ipython --pylab=qt"
+envs.interactive.scripts.session = "ipython --pylab=qt"
 envs.types.extra-dependencies = [
   "mypy"
 ]
