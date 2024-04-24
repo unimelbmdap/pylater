@@ -57,6 +57,7 @@ hatch run tests:test
 
 ```bash
 hatch run interactive:session
+```
 
 ## References
 
