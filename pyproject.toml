@@ -53,6 +53,8 @@ envs.docs.extra-dependencies = [
   "sphinx",
   "sphinx_rtd_theme",
   "nbsphinx",
+  "jupytext",
+  "myst-nb",
 ]
 
 envs.tests.extra-dependencies = ["pytest"]
