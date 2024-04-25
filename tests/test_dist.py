@@ -54,4 +54,5 @@ def test_random() -> None:
     sized_samples = pylater.dist.random(
         mu=mu, sigma=sigma, sigma_e=sigma_e, size=sized_shape
     )
+    assert isinstance(sized_samples, np.ndarray)
     assert sized_samples.shape == sized_shape

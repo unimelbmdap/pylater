@@ -5,13 +5,14 @@ import pytensor.tensor as pt
 
 
 class LATER:
-    def __new__(
+    def __new__(  # type: ignore
         cls,
         name: str,
         mu: float | pm.Distribution,
         sigma: float | pm.Distribution,
         sigma_e: float | pm.Distribution,
         observed: npt.NDArray[np.float_] | None = None,
+        **kwargs,
     ) -> pm.CustomDist:
         observed_promptness = 1 / observed if observed is not None else None
 
@@ -24,6 +25,7 @@ class LATER:
             logcdf=logcdf,
             random=random,
             observed=observed_promptness,
+            **kwargs,
         )
 
 
@@ -64,7 +66,7 @@ def random(
     sigma: npt.NDArray[np.float_] | float,
     sigma_e: npt.NDArray[np.float_] | float,
     rng: np.random.Generator | None = None,
-    size: tuple[int] | None = None,
+    size: tuple[int, ...] | None = None,
 ) -> npt.NDArray[np.float_] | float:
     if rng is None:
         rng = np.random.default_rng()

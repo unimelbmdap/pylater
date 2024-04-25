@@ -34,11 +34,10 @@ envs.default.dependencies = [
   "numpy",
   "scipy",
   "pymc",
-  "sympy",
+  "matplotlib",
 ]
 envs.interactive.extra-dependencies = [
   "ipython",
-  "matplotlib",
   "pyqt6",
   "pickleshare",
 ]
@@ -49,12 +48,13 @@ envs.types.extra-dependencies = [
 envs.types.scripts.check = "mypy {args:src/pylater tests}"
 
 envs.docs.scripts.build = "sphinx-build docs/ public"
+envs.docs.scripts.jupyterlab = "jupyter lab"
 envs.docs.extra-dependencies = [
   "sphinx",
   "sphinx_rtd_theme",
-  "nbsphinx",
-  "jupytext",
   "myst-nb",
+  "jupyterlab",
+  "watermark",
 ]
 
 envs.tests.extra-dependencies = ["pytest"]
