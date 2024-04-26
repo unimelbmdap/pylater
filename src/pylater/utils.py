@@ -23,34 +23,6 @@ def plot_prior_predictive(
     quantiles = ecdf.quantile(dim="sample", q=[0.025, 0.5, 0.975])
 
     (figure, axes) = pylater.plot.reciprobit_figure()
-    #(figure, axes) = plt.subplots()
-
-    x = np.concatenate(
-        (
-            ecdf.rt.values,
-            ecdf.rt.values[::-1],
-            [ecdf.rt.values[0]],
-        ),
-    )
-
-    y = np.concatenate(
-        (
-            quantiles.sel(quantile=0.025).values,
-            quantiles.sel(quantile=0.975).values[::-1],
-            [quantiles.sel(quantile=0.025).values[0]],
-        ),
-    )
-
-    axes.fill(x, y)
-
-    """
-    axes.fill_between(
-        x=ecdf.rt.values,
-        y1=quantiles.sel(quantile=0.025).values,
-        y2=quantiles.sel(quantile=0.975).values,
-        color="grey",
-    )
-    """
 
     for q in [0.025, 0.975]:
         axes.plot(ecdf.rt.values, quantiles.sel(quantile=q).values, color="grey")
