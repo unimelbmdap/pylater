@@ -1,6 +1,7 @@
 import functools
 
 import numpy as np
+import scipy.stats
 
 import xarray as xr
 
@@ -9,16 +10,57 @@ import arviz as az
 import matplotlib.pyplot as plt
 import matplotlib.figure
 
+import pylater.plot
+
 
 def plot_prior_predictive(
     idata: az.data.inference_data.InferenceData,
+    observed_variable_name: str = "obs",
 ) -> matplotlib.figure.Figure:
 
-    (figure, axes) = plt.subplots()
+    ecdf = _form_ecdf(idata=idata)
+
+    quantiles = ecdf.quantile(dim="sample", q=[0.025, 0.5, 0.975])
+
+    (figure, axes) = pylater.plot.reciprobit_figure()
+    #(figure, axes) = plt.subplots()
+
+    x = np.concatenate(
+        (
+            ecdf.rt.values,
+            ecdf.rt.values[::-1],
+            [ecdf.rt.values[0]],
+        ),
+    )
+
+    y = np.concatenate(
+        (
+            quantiles.sel(quantile=0.025).values,
+            quantiles.sel(quantile=0.975).values[::-1],
+            [quantiles.sel(quantile=0.025).values[0]],
+        ),
+    )
+
+    axes.fill(x, y)
+
+    """
+    axes.fill_between(
+        x=ecdf.rt.values,
+        y1=quantiles.sel(quantile=0.025).values,
+        y2=quantiles.sel(quantile=0.975).values,
+        color="grey",
+    )
+    """
+
+    for q in [0.025, 0.975]:
+        axes.plot(ecdf.rt.values, quantiles.sel(quantile=q).values, color="grey")
+
+    axes.plot(ecdf.rt.values, quantiles.sel(quantile=0.5).values, "k")
 
 
-def _form_histogram(
-    idata: az.data.inference_data.InferenceData
+def _form_ecdf(
+    idata: az.data.inference_data.InferenceData,
+    observed_variable_name: str = "obs",
 ) -> xr.DataArray:
 
     dataset = az.extract(
@@ -26,30 +68,25 @@ def _form_histogram(
         group="prior",
         combined=True,
         keep_dataset=True,
+        var_names=observed_variable_name,
     )
 
     data, = dataset.data_vars.values()
 
-    rt_dim, = (dim_name for dim_name in data.dims if dim_name != "sample")
+    min_rt_s = 51 / 1000
+    max_rt_s = 2000 / 1000
 
-    # sniff the first sample to get the bins
-    (_, bins) = np.histogram(
-        a=data.isel(sample=0).values,
-        bins="auto",
-    )
+    x_rt_s = np.logspace(np.log10(min_rt_s), np.log10(max_rt_s), 1001)
 
-    bin_delta = bins[1] - bins[0]
-    bin_centres = bins[:-1] + bin_delta / 2
+    def gen_ecdf(sample_data: xr.DataArray) -> xr.DataArray:
 
-    def histogram(sample_data: xr.DataArray) -> xr.DataArray:
+        ecdf = scipy.stats.ecdf(sample=np.squeeze(sample_data.values))
 
-        (hist, _) = np.histogram(a=sample_data.values, bins=bins, density=True)
+        ecdf_p = ecdf.cdf.evaluate(x=x_rt_s)
 
         return xr.DataArray(
-            data=hist,
-            coords={"bin_centre": bin_centres},
+            data=ecdf_p,
+            coords={"rt": x_rt_s},
         )
 
-    hist = data.groupby(group="sample", squeeze=False).map(histogram)
-
-    return hist
+    return data.groupby(group="sample", squeeze=False).map(gen_ecdf)
