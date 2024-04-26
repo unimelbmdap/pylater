@@ -35,6 +35,7 @@ envs.default.dependencies = [
   "scipy",
   "pymc",
   "matplotlib",
+  "xarray",
 ]
 envs.interactive.extra-dependencies = [
   "ipython",

@@ -74,4 +74,8 @@ def random(
     later = rng.normal(loc=mu, scale=sigma, size=size)
     early = rng.normal(loc=0, scale=sigma_e, size=size)
 
-    return np.where(later > early, later, early)
+    promptness = np.where(later > early, later, early)
+
+    rt = 1 / promptness
+
+    return rt
