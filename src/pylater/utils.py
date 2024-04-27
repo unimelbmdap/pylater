@@ -1,11 +1,8 @@
+import arviz as az
+import matplotlib.figure
 import numpy as np
 import scipy.stats
-
 import xarray as xr
-
-import arviz as az
-
-import matplotlib.figure
 
 import pylater.plot
 
@@ -16,7 +13,6 @@ def plot_prior_predictive(
     min_rt_s: float = 50.0,
     max_rt_s: float = 2000.0,
 ) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
-
     ecdf = _form_ecdf(
         idata=idata,
         observed_variable_name=observed_variable_name,
@@ -28,7 +24,11 @@ def plot_prior_predictive(
 
     (figure, axes) = pylater.plot.reciprobit_figure()
 
-    axes.fill_between(ecdf.rt.values, quantiles.sel(quantile=0.025).values, quantiles.sel(quantile=0.975).values)
+    axes.fill_between(
+        ecdf.rt.values,
+        quantiles.sel(quantile=0.025).values,
+        quantiles.sel(quantile=0.975).values,
+    )
 
     axes.plot(ecdf.rt.values, quantiles.sel(quantile=0.5).values, "k")
 
@@ -41,7 +41,6 @@ def _form_ecdf(
     min_rt_s: float = 50.0,
     max_rt_s: float = 2000.0,
 ) -> xr.DataArray:
-
     dataset: xr.Dataset = az.extract(
         data=idata,
         group="prior",
@@ -50,12 +49,11 @@ def _form_ecdf(
         var_names=observed_variable_name,
     )
 
-    data, = dataset.data_vars.values()
+    (data,) = dataset.data_vars.values()
 
     x_rt_s = np.logspace(np.log10(min_rt_s), np.log10(max_rt_s), 101)
 
     def gen_ecdf(sample_data: xr.DataArray) -> xr.DataArray:
-
         ecdf = scipy.stats.ecdf(sample=np.squeeze(sample_data.values))
 
         ecdf_p = ecdf.cdf.evaluate(x=x_rt_s)

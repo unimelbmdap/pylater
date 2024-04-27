@@ -3,7 +3,6 @@ import csv
 import functools
 import importlib.resources
 import pathlib
-import typing
 
 import numpy as np
 import numpy.typing as npt

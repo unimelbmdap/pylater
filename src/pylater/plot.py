@@ -1,12 +1,12 @@
 import enum
 
 import matplotlib as mpl
-import matplotlib.pyplot as plt
-import matplotlib.figure
 import matplotlib.axes
+import matplotlib.figure
+import matplotlib.pyplot as plt
 import matplotlib.scale
-import matplotlib.transforms
 import matplotlib.ticker
+import matplotlib.transforms
 import numpy as np
 import numpy.typing as npt
 import scipy.stats
@@ -18,14 +18,12 @@ class AxisType(enum.Enum):
 
 
 class ReciprobitTimeTransform(matplotlib.transforms.Transform):
-
     input_dims = output_dims = 1
 
     def __init__(self) -> None:
         super().__init__()
 
     def transform_non_affine(self, a: npt.ArrayLike) -> npt.NDArray[np.float_]:
-
         with np.errstate(divide="ignore", invalid="ignore"):
             values: npt.NDArray[np.float_] = -1.0 / a
 
@@ -36,7 +34,6 @@ class ReciprobitTimeTransform(matplotlib.transforms.Transform):
 
 
 class ReciprobitTimeTransformInverted(matplotlib.transforms.Transform):
-
     input_dims = output_dims = 1
 
     def __init__(self) -> None:
@@ -49,9 +46,7 @@ class ReciprobitTimeTransformInverted(matplotlib.transforms.Transform):
         return ReciprobitTimeTransform()
 
 
-
 class ReciprobitTimeScale(matplotlib.scale.ScaleBase):
-
     name = "reciprobit_time"
 
     def __init__(
@@ -66,7 +61,6 @@ class ReciprobitTimeScale(matplotlib.scale.ScaleBase):
         return ReciprobitTimeTransform()
 
     def set_default_locators_and_formatters(self, axis: matplotlib.axis.Axis) -> None:
-
         def _tick_formatter(x: float, pos: float) -> str:  # noqa: ARG001
             if self.axis_type == AxisType.TIME:
                 return f"{x * 1000:,.5g}"
@@ -92,7 +86,6 @@ class ReciprobitTimeScale(matplotlib.scale.ScaleBase):
 
 
 class ProbitTransform(matplotlib.transforms.Transform):
-
     input_dims = output_dims = 1
 
     def transform_non_affine(self, a: npt.ArrayLike) -> npt.NDArray[np.float_]:
@@ -104,7 +97,6 @@ class ProbitTransform(matplotlib.transforms.Transform):
 
 
 class InverseProbitTransform(matplotlib.transforms.Transform):
-
     input_dims = output_dims = 1
 
     def transform_non_affine(self, a: npt.ArrayLike) -> npt.NDArray[np.float_]:
@@ -116,20 +108,16 @@ class InverseProbitTransform(matplotlib.transforms.Transform):
 
 
 class ProbitScale(matplotlib.scale.ScaleBase):
-
     name = "probit"
 
     def get_transform(self) -> matplotlib.transforms.Transform:
         return ProbitTransform()
 
     def set_default_locators_and_formatters(self, axis: matplotlib.axis.Axis) -> None:
-
         def _tick_formatter(x: float, pos: float) -> str:  # noqa: ARG001
             return f"{x*100:.3g}"
 
-        axis.set_major_formatter(
-            matplotlib.ticker.FuncFormatter(func=_tick_formatter)
-        )
+        axis.set_major_formatter(matplotlib.ticker.FuncFormatter(func=_tick_formatter))
 
     def limit_range_for_scale(
         self,
@@ -139,10 +127,7 @@ class ProbitScale(matplotlib.scale.ScaleBase):
     ) -> tuple[float, float]:
         if not np.isfinite(minpos):
             minpos = 1e-7
-        return (
-            minpos if vmin <= 0 else vmin,
-            1 - minpos if vmax >= 1 else vmax
-        )
+        return (minpos if vmin <= 0 else vmin, 1 - minpos if vmax >= 1 else vmax)
 
 
 def reciprobit_figure(
@@ -152,12 +137,7 @@ def reciprobit_figure(
     p_max: float = 1 - 0.001,
     apply_default_style: bool = True,
 ) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
-
-    style = (
-        get_mpl_defaults()
-        if apply_default_style
-        else {}
-    )
+    style = get_mpl_defaults() if apply_default_style else {}
 
     with mpl.rc_context(rc=style):
         (fig, ax) = plt.subplots()
@@ -177,7 +157,8 @@ def reciprobit_figure(
         y_ticks = (
             np.array(
                 [0.1, 0.5, 1, 2, 5, 10, 20, 30, 50, 70, 80, 90, 95, 98, 99, 99.5, 99.9]
-            ) / 100
+            )
+            / 100
         )
 
         ax.set_ylim((p_min, p_max))
@@ -185,15 +166,14 @@ def reciprobit_figure(
         ax.set_yticks(ticks=y_ticks)
         ax.set_ylabel(ylabel="Cumulative probability (%)")
 
-        #ax_z = ax.secondary_yaxis(location="right")
-        #ax_z.set_yticks(ticks=y_ticks)
-        #ax_z.set_yscale(value="linear")
+        # ax_z = ax.secondary_yaxis(location="right")
+        # ax_z.set_yticks(ticks=y_ticks)
+        # ax_z.set_yscale(value="linear")
 
     return (fig, ax)
 
 
 def get_mpl_defaults() -> dict[str, list[str] | float | bool]:
-
     defaults: dict[str, list[str] | float | bool] = {
         # font sizes
         "font.size": 9,

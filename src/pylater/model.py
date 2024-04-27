@@ -1,7 +1,7 @@
 import pymc as pm
 
-import pylater.dist
 import pylater.data
+import pylater.dist
 
 
 def demo():
