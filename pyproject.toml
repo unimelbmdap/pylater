@@ -57,6 +57,7 @@ envs.docs.extra-dependencies = [
   "myst-nb",
   "jupyterlab",
   "watermark",
+  "ipywidgets",
 ]
 
 envs.tests.extra-dependencies = ["pytest"]

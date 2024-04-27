@@ -10,8 +10,8 @@ import pylater.plot
 def plot_prior_predictive(
     idata: az.data.inference_data.InferenceData,
     observed_variable_name: str = "obs",
-    min_rt_s: float = 50.0,
-    max_rt_s: float = 2000.0,
+    min_rt_s: float = 50 / 1000.0,
+    max_rt_s: float = 2000 / 1000.0,
 ) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
     ecdf = _form_ecdf(
         idata=idata,
@@ -28,9 +28,22 @@ def plot_prior_predictive(
         ecdf.rt.values,
         quantiles.sel(quantile=0.025).values,
         quantiles.sel(quantile=0.975).values,
+        color="lightgrey",
+        label="95% credible interval",
     )
 
-    axes.plot(ecdf.rt.values, quantiles.sel(quantile=0.5).values, "k")
+    axes.plot(ecdf.rt.values, quantiles.sel(quantile=0.5).values, "k", label="Median")
+
+    # add 50%
+    axes.plot(
+        [min_rt_s, max_rt_s],
+        [0.5] * 2,
+        color="grey",
+        linestyle="--",
+        alpha=0.5,
+    )
+
+    axes.legend()
 
     return (figure, axes)
 
@@ -38,8 +51,8 @@ def plot_prior_predictive(
 def _form_ecdf(
     idata: az.data.inference_data.InferenceData,
     observed_variable_name: str = "obs",
-    min_rt_s: float = 50.0,
-    max_rt_s: float = 2000.0,
+    min_rt_s: float = 50 / 1000.0,
+    max_rt_s: float = 2000 / 1000.0
 ) -> xr.DataArray:
     dataset: xr.Dataset = az.extract(
         data=idata,
