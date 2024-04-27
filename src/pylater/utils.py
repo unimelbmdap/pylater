@@ -1,5 +1,3 @@
-import functools
-
 import numpy as np
 import scipy.stats
 
@@ -7,7 +5,6 @@ import xarray as xr
 
 import arviz as az
 
-import matplotlib.pyplot as plt
 import matplotlib.figure
 
 import pylater.plot
@@ -20,7 +17,12 @@ def plot_prior_predictive(
     max_rt_s: float = 2000.0,
 ) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
 
-    ecdf = _form_ecdf(idata=idata, min_rt_s=min_rt_s, max_rt_s=max_rt_s)
+    ecdf = _form_ecdf(
+        idata=idata,
+        observed_variable_name=observed_variable_name,
+        min_rt_s=min_rt_s,
+        max_rt_s=max_rt_s,
+    )
 
     quantiles = ecdf.quantile(dim="sample", q=[0.025, 0.5, 0.975])
 

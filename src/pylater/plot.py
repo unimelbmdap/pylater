@@ -25,8 +25,10 @@ class ReciprobitTimeTransform(matplotlib.transforms.Transform):
         super().__init__()
 
     def transform_non_affine(self, a: npt.ArrayLike) -> npt.NDArray[np.float_]:
-        masked = np.ma.masked_where(condition=a <= 0.0, a=a)  # type: ignore
-        values: npt.NDArray[np.float_] = -1.0 / masked
+
+        with np.errstate(divide="ignore", invalid="ignore"):
+            values: npt.NDArray[np.float_] = -1.0 / a
+
         return values
 
     def inverted(self) -> matplotlib.transforms.Transform:
@@ -65,14 +67,14 @@ class ReciprobitTimeScale(matplotlib.scale.ScaleBase):
 
     def set_default_locators_and_formatters(self, axis: matplotlib.axis.Axis) -> None:
 
-        def _tick_formatter(x: float, pos: float) -> str:
+        def _tick_formatter(x: float, pos: float) -> str:  # noqa: ARG001
             if self.axis_type == AxisType.TIME:
                 return f"{x * 1000:,.5g}"
-            elif self.axis_type == AxisType.PROMPTNESS:
+            if self.axis_type == AxisType.PROMPTNESS:
                 if x <= 0:
                     return ""
-                else:
-                    return f"{1 / x:,.2g}"
+                return f"{1 / x:,.2g}"
+            return ""
 
         axis.set_major_formatter(
             formatter=matplotlib.ticker.FuncFormatter(func=_tick_formatter)
@@ -122,7 +124,7 @@ class ProbitScale(matplotlib.scale.ScaleBase):
 
     def set_default_locators_and_formatters(self, axis: matplotlib.axis.Axis) -> None:
 
-        def _tick_formatter(x: float, pos: float) -> str:
+        def _tick_formatter(x: float, pos: float) -> str:  # noqa: ARG001
             return f"{x*100:.3g}"
 
         axis.set_major_formatter(

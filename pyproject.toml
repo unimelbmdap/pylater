@@ -95,6 +95,7 @@ ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 88
+exclude = ["docs/*"]
 extend-select = [
   "NPY",  # numpy
   "PTH",  # flake8-usepathlib
@@ -103,4 +104,6 @@ extend-select = [
 ]
 lint.ignore = [
 	"ANN101",  # typing self
+  "FBT001",  # bool arguments
+  "FBT002",  # bool arguments
 ]
