@@ -46,6 +46,7 @@ envs.interactive.scripts.session = "ipython --pylab=qt"
 envs.types.extra-dependencies = [
   "mypy"
 ]
+#envs.types.scripts.check = "mypy --untyped-calls-exclude=arviz {args:src/pylater tests}"
 envs.types.scripts.check = "mypy {args:src/pylater tests}"
 
 envs.docs.scripts.build = "sphinx-build docs/ public"
@@ -82,6 +83,7 @@ warn_return_any = true
 no_implicit_reexport = true
 strict_equality = true
 extra_checks = true
+untyped_calls_exclude = ["arviz"]
 
 [[tool.mypy.overrides]]
 module = [

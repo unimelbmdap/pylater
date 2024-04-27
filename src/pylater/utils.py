@@ -16,26 +16,31 @@ import pylater.plot
 def plot_prior_predictive(
     idata: az.data.inference_data.InferenceData,
     observed_variable_name: str = "obs",
-) -> matplotlib.figure.Figure:
+    min_rt_s: float = 50.0,
+    max_rt_s: float = 2000.0,
+) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
 
-    ecdf = _form_ecdf(idata=idata)
+    ecdf = _form_ecdf(idata=idata, min_rt_s=min_rt_s, max_rt_s=max_rt_s)
 
     quantiles = ecdf.quantile(dim="sample", q=[0.025, 0.5, 0.975])
 
     (figure, axes) = pylater.plot.reciprobit_figure()
 
-    for q in [0.025, 0.975]:
-        axes.plot(ecdf.rt.values, quantiles.sel(quantile=q).values, color="grey")
+    axes.fill_between(ecdf.rt.values, quantiles.sel(quantile=0.025).values, quantiles.sel(quantile=0.975).values)
 
     axes.plot(ecdf.rt.values, quantiles.sel(quantile=0.5).values, "k")
+
+    return (figure, axes)
 
 
 def _form_ecdf(
     idata: az.data.inference_data.InferenceData,
     observed_variable_name: str = "obs",
+    min_rt_s: float = 50.0,
+    max_rt_s: float = 2000.0,
 ) -> xr.DataArray:
 
-    dataset = az.extract(
+    dataset: xr.Dataset = az.extract(
         data=idata,
         group="prior",
         combined=True,
@@ -45,10 +50,7 @@ def _form_ecdf(
 
     data, = dataset.data_vars.values()
 
-    min_rt_s = 51 / 1000
-    max_rt_s = 2000 / 1000
-
-    x_rt_s = np.logspace(np.log10(min_rt_s), np.log10(max_rt_s), 1001)
+    x_rt_s = np.logspace(np.log10(min_rt_s), np.log10(max_rt_s), 101)
 
     def gen_ecdf(sample_data: xr.DataArray) -> xr.DataArray:
 
@@ -61,4 +63,6 @@ def _form_ecdf(
             coords={"rt": x_rt_s},
         )
 
-    return data.groupby(group="sample", squeeze=False).map(gen_ecdf)
+    ecdf_da = data.groupby(group="sample", squeeze=False).map(gen_ecdf)
+
+    return ecdf_da.where(np.logical_and(ecdf_da > 0, ecdf_da < 1))
