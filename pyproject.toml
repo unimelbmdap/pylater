@@ -61,7 +61,7 @@ envs.docs.extra-dependencies = [
 ]
 
 envs.tests.extra-dependencies = ["pytest"]
-envs.tests.scripts.test = "pytest"
+envs.tests.scripts.test = "pytest {args}"
 
 [[tool.hatch.envs.tests.matrix]]
 python = ["3.10", "3.11", "3.12"]
