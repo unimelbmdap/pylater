@@ -17,7 +17,6 @@ classifiers = [
   "Programming Language :: Python",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -64,7 +63,7 @@ envs.tests.extra-dependencies = ["pytest"]
 envs.tests.scripts.test = "pytest {args}"
 
 [[tool.hatch.envs.tests.matrix]]
-python = ["3.10", "3.11", "3.12"]
+python = ["3.10", "3.11"]
 
 
 [tool.mypy]

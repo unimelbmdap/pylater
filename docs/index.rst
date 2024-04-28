@@ -5,4 +5,4 @@ Documentation
     :maxdepth: 1
     :caption: Contents:
 
-    notebooks/test
+    notebooks/priors

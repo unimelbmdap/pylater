@@ -13,6 +13,8 @@ extensions = [
     "myst_nb",
 ]
 
+nb_execution_timeout = -1
+
 templates_path = ["_templates"]
 exclude_patterns = []
 
