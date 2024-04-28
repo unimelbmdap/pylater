@@ -7,14 +7,17 @@ import xarray as xr
 import pylater.plot
 
 
-def plot_prior_predictive(
+def plot_predictive(
     idata: az.data.inference_data.InferenceData,
+    group: str,
     observed_variable_name: str = "obs",
+    with_observed: bool = False,
     min_rt_s: float = 50 / 1000.0,
     max_rt_s: float = 2000 / 1000.0,
 ) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
     ecdf = _form_ecdf(
         idata=idata,
+        group=group,
         observed_variable_name=observed_variable_name,
         min_rt_s=min_rt_s,
         max_rt_s=max_rt_s,
@@ -22,7 +25,10 @@ def plot_prior_predictive(
 
     quantiles = ecdf.quantile(dim="sample", q=[0.025, 0.5, 0.975])
 
-    (figure, axes) = pylater.plot.reciprobit_figure()
+    (figure, axes) = pylater.plot.reciprobit_figure(
+        min_rt_s=min_rt_s,
+        max_rt_s=max_rt_s,
+    )
 
     axes.fill_between(
         ecdf.rt.values,
@@ -32,7 +38,12 @@ def plot_prior_predictive(
         label="95% credible interval",
     )
 
-    axes.plot(ecdf.rt.values, quantiles.sel(quantile=0.5).values, "k", label="Median")
+    axes.plot(
+        ecdf.rt.values,
+        quantiles.sel(quantile=0.5).values,
+        "grey",
+        label="Median",
+    )
 
     # add 50%
     axes.plot(
@@ -43,6 +54,12 @@ def plot_prior_predictive(
         alpha=0.5,
     )
 
+    if with_observed:
+        trial_data = 1 / idata.observed_data[observed_variable_name]
+        trial_ecdf = scipy.stats.ecdf(sample=trial_data.values)
+
+        trial_ecdf.cdf.plot(ax=axes, label="Observed data", color="k")
+
     axes.legend()
 
     return (figure, axes)
@@ -50,13 +67,14 @@ def plot_prior_predictive(
 
 def _form_ecdf(
     idata: az.data.inference_data.InferenceData,
+    group: str,
     observed_variable_name: str = "obs",
     min_rt_s: float = 50 / 1000.0,
     max_rt_s: float = 2000 / 1000.0
 ) -> xr.DataArray:
     dataset: xr.Dataset = az.extract(
         data=idata,
-        group="prior",
+        group=group,
         combined=True,
         keep_dataset=True,
         var_names=observed_variable_name,

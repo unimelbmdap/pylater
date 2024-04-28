@@ -131,8 +131,8 @@ class ProbitScale(matplotlib.scale.ScaleBase):
 
 
 def reciprobit_figure(
-    rt_s_min: float = 50 / 1000,
-    rt_s_max: float = 2000 / 1000,
+    min_rt_s: float = 50 / 1000,
+    max_rt_s: float = 2000 / 1000,
     p_min: float = 0.001,
     p_max: float = 1 - 0.001,
     apply_default_style: bool = True,
@@ -144,10 +144,10 @@ def reciprobit_figure(
 
         tick_locations_ms = np.array([50, 100, 150, 200, 300, 500, 1000])
 
-        ax.set_xlim((rt_s_min, rt_s_max))
         ax.set_xticks(ticks=tick_locations_ms / 1000)
         ax.set_xscale(value="reciprobit_time")
         ax.set_xlabel(xlabel="Latency (ms)")
+        ax.set_xlim((min_rt_s, max_rt_s))
 
         ax_promptness = ax.secondary_xaxis(location="top")
         ax_promptness.set_xscale(value="reciprobit_time", axis_type=AxisType.PROMPTNESS)
