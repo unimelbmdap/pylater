@@ -57,6 +57,7 @@ envs.docs.extra-dependencies = [
   "jupyterlab",
   "watermark",
   "ipywidgets",
+  "jupytext",
 ]
 
 envs.tests.extra-dependencies = ["pytest"]

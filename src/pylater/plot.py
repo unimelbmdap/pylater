@@ -166,10 +166,6 @@ def reciprobit_figure(
         ax.set_yticks(ticks=y_ticks)
         ax.set_ylabel(ylabel="Cumulative probability (%)")
 
-        # ax_z = ax.secondary_yaxis(location="right")
-        # ax_z.set_yticks(ticks=y_ticks)
-        # ax_z.set_yscale(value="linear")
-
     return (fig, ax)
 
 

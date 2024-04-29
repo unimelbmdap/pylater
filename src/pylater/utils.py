@@ -1,4 +1,5 @@
 import arviz as az
+import matplotlib as mpl
 import matplotlib.figure
 import numpy as np
 import scipy.stats
@@ -12,6 +13,7 @@ def plot_predictive(
     group: str,
     observed_variable_name: str = "obs",
     with_observed: bool = False,
+    with_p50_line: bool = False,
     min_rt_s: float = 50 / 1000.0,
     max_rt_s: float = 2000 / 1000.0,
 ) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
@@ -25,42 +27,62 @@ def plot_predictive(
 
     quantiles = ecdf.quantile(dim="sample", q=[0.025, 0.5, 0.975])
 
+    quantiles = quantiles.clip(0.0001, 1 - 0.0001)
+
     (figure, axes) = pylater.plot.reciprobit_figure(
         min_rt_s=min_rt_s,
         max_rt_s=max_rt_s,
     )
 
-    axes.fill_between(
-        ecdf.rt.values,
-        quantiles.sel(quantile=0.025).values,
-        quantiles.sel(quantile=0.975).values,
-        color="lightgrey",
-        label="95% credible interval",
-    )
+    style = pylater.plot.get_mpl_defaults()
 
-    axes.plot(
-        ecdf.rt.values,
-        quantiles.sel(quantile=0.5).values,
-        "grey",
-        label="Median",
-    )
+    with mpl.rc_context(rc=style):
 
-    # add 50%
-    axes.plot(
-        [min_rt_s, max_rt_s],
-        [0.5] * 2,
-        color="grey",
-        linestyle="--",
-        alpha=0.5,
-    )
+        axes.fill_between(
+            ecdf.rt.values,
+            quantiles.sel(quantile=0.025).values,
+            quantiles.sel(quantile=0.975).values,
+            color="lightgrey",
+            label="95% credible interval",
+        )
 
-    if with_observed:
-        trial_data = 1 / idata.observed_data[observed_variable_name]
-        trial_ecdf = scipy.stats.ecdf(sample=trial_data.values)
+        axes.plot(
+            ecdf.rt.values,
+            quantiles.sel(quantile=0.5).values,
+            "grey",
+            label="Median",
+        )
 
-        trial_ecdf.cdf.plot(ax=axes, label="Observed data", color="k")
+        if with_p50_line:
+            # add 50%
+            axes.plot(
+                [min_rt_s, max_rt_s],
+                [0.5] * 2,
+                color="grey",
+                linestyle="--",
+                alpha=0.5,
+            )
 
-    axes.legend()
+        if with_observed:
+            trial_data = 1 / idata.observed_data[observed_variable_name]
+            trial_ecdf = scipy.stats.ecdf(sample=trial_data.values)
+
+            x_rt_s = np.logspace(np.log10(min_rt_s), np.log10(max_rt_s), 1001)
+            trial_ecdf_p = np.clip(
+                trial_ecdf.cdf.evaluate(x_rt_s),
+                0.0001,
+                1 - 0.0001,
+            )
+
+            #trial_ecdf.cdf.plot(ax=axes, label="Observed data", color="k")
+            axes.step(
+                x_rt_s,
+                trial_ecdf_p,
+                label="Observed data",
+                color="k",
+            )
+
+        axes.legend()
 
     return (figure, axes)
 
@@ -82,7 +104,7 @@ def _form_ecdf(
 
     (data,) = dataset.data_vars.values()
 
-    x_rt_s = np.logspace(np.log10(min_rt_s), np.log10(max_rt_s), 101)
+    x_rt_s = np.logspace(np.log10(min_rt_s), np.log10(max_rt_s), 1001)
 
     def gen_ecdf(sample_data: xr.DataArray) -> xr.DataArray:
         ecdf = scipy.stats.ecdf(sample=np.squeeze(sample_data.values))
@@ -96,4 +118,4 @@ def _form_ecdf(
 
     ecdf_da = data.groupby(group="sample", squeeze=False).map(gen_ecdf)
 
-    return ecdf_da.where(np.logical_and(ecdf_da > 0, ecdf_da < 1))
+    return ecdf_da
