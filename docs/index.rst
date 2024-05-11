@@ -6,3 +6,4 @@ Documentation
     :caption: Contents:
 
     notebooks/priors
+    api

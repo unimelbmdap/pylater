@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import numpy as np
 import numpy.typing as npt
 import pymc as pm
@@ -5,16 +7,47 @@ import pytensor.tensor as pt
 
 
 class LATER:
+
+    __doc__ = """A custom PyMC distribution for a LATER model.
+
+    Parameters
+    ----------
+    name
+        Identifier for the distribution.
+    mu
+        Mean of the primary component.
+    sigma
+        Standard deviation of the primary component.
+    sigma_e
+        Standard deviation of the early component.
+    observed_rt_s
+        Observed reaction times, in units of seconds.
+    **kwargs
+        Additional arguments are passed directly to `pm.CustomDist`.
+
+    Returns
+    -------
+    pm.CustomDist
+        Distribution for use with a PyMC model.
+
+    Notes
+    -----
+    * The model parameters are in units of promptness (reciprocal of time).
+    * Random samples from the model are in units of time.
+
+    """
+
     def __new__(  # type: ignore
         cls,
         name: str,
         mu: float | pm.Distribution,
         sigma: float | pm.Distribution,
         sigma_e: float | pm.Distribution,
-        observed: npt.NDArray[np.float_] | None = None,
+        observed_rt_s: npt.NDArray[np.float64] | None = None,
         **kwargs,
     ) -> pm.CustomDist:
-        observed_promptness = 1 / observed if observed is not None else None
+
+        observed_promptness = 1 / observed_rt_s if observed_rt_s is not None else None
 
         return pm.CustomDist(
             name,
@@ -24,7 +57,7 @@ class LATER:
             logp=logp,
             logcdf=logcdf,
             random=random,
-            observed=observed_promptness,
+            observed_rt_s=observed_promptness,
             **kwargs,
         )
 
@@ -62,12 +95,12 @@ def logcdf(
 
 
 def random(
-    mu: npt.NDArray[np.float_] | float,
-    sigma: npt.NDArray[np.float_] | float,
-    sigma_e: npt.NDArray[np.float_] | float,
+    mu: npt.NDArray[np.float64] | float,
+    sigma: npt.NDArray[np.float64] | float,
+    sigma_e: npt.NDArray[np.float64] | float,
     rng: np.random.Generator | None = None,
     size: tuple[int, ...] | None = None,
-) -> npt.NDArray[np.float_] | float:
+) -> npt.NDArray[np.float64] | float:
     if rng is None:
         rng = np.random.default_rng()
 

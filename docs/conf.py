@@ -11,6 +11,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_rtd_theme",
     "myst_nb",
+    "sphinx_autodoc_typehints",
 ]
 
 nb_execution_timeout = -1
@@ -27,3 +28,12 @@ html_show_copyright = False
 html_show_sphinx = False
 
 html_theme_options = {}
+
+autodoc_typehints = "both"
+autodoc_member_order = "bysource"
+autodoc_preserve_defaults = True
+
+typehints_use_signature = True
+
+def setup(app):
+    app.add_css_file("types_fix.css")

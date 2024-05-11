@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import enum
 
 import matplotlib as mpl
@@ -23,9 +25,9 @@ class ReciprobitTimeTransform(matplotlib.transforms.Transform):
     def __init__(self) -> None:
         super().__init__()
 
-    def transform_non_affine(self, a: npt.ArrayLike) -> npt.NDArray[np.float_]:
+    def transform_non_affine(self, a: npt.ArrayLike) -> npt.NDArray[np.float64]:
         with np.errstate(divide="ignore", invalid="ignore"):
-            values: npt.NDArray[np.float_] = -1.0 / a
+            values: npt.NDArray[np.float64] = -1.0 / np.array(a)
 
         return values
 
@@ -39,7 +41,7 @@ class ReciprobitTimeTransformInverted(matplotlib.transforms.Transform):
     def __init__(self) -> None:
         super().__init__()
 
-    def transform_non_affine(self, a: npt.ArrayLike) -> npt.NDArray[np.float_]:
+    def transform_non_affine(self, a: npt.ArrayLike) -> npt.NDArray[np.float64]:
         return -1.0 / np.array(a)
 
     def inverted(self) -> matplotlib.transforms.Transform:
@@ -88,8 +90,8 @@ class ReciprobitTimeScale(matplotlib.scale.ScaleBase):
 class ProbitTransform(matplotlib.transforms.Transform):
     input_dims = output_dims = 1
 
-    def transform_non_affine(self, a: npt.ArrayLike) -> npt.NDArray[np.float_]:
-        z: npt.NDArray[np.float_] = scipy.stats.norm.ppf(q=a)
+    def transform_non_affine(self, a: npt.ArrayLike) -> npt.NDArray[np.float64]:
+        z: npt.NDArray[np.float64] = scipy.stats.norm.ppf(q=a)
         return z
 
     def inverted(self) -> matplotlib.transforms.Transform:
@@ -99,8 +101,8 @@ class ProbitTransform(matplotlib.transforms.Transform):
 class InverseProbitTransform(matplotlib.transforms.Transform):
     input_dims = output_dims = 1
 
-    def transform_non_affine(self, a: npt.ArrayLike) -> npt.NDArray[np.float_]:
-        p: npt.NDArray[np.float_] = scipy.stats.norm.cdf(x=a)
+    def transform_non_affine(self, a: npt.ArrayLike) -> npt.NDArray[np.float64]:
+        p: npt.NDArray[np.float64] = scipy.stats.norm.cdf(x=a)
         return p
 
     def inverted(self) -> matplotlib.transforms.Transform:
@@ -130,13 +132,33 @@ class ProbitScale(matplotlib.scale.ScaleBase):
         return (minpos if vmin <= 0 else vmin, 1 - minpos if vmax >= 1 else vmax)
 
 
-def reciprobit_figure(
+def create_reciprobit_figure(
     min_rt_s: float = 50 / 1000,
     max_rt_s: float = 2000 / 1000,
     p_min: float = 0.001,
     p_max: float = 1 - 0.001,
-    apply_default_style: bool = True,
+    apply_style: bool = True,
 ) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+    """
+    Create a Matplotlib figure in reciprobit space.
+
+    Parameters
+    ----------
+    min_rt_s, max_rt_s
+        Minimum and maxium reaction time values, in seconds, for the x axis.
+    p_min, p_max
+        Minimum and maximum probability values, for the y axis.
+    apply_style
+        Whether to apply a custom styling to the figure or leave the defaults.
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        Figure.
+    matplotlib.axes.Axes
+        Axes.
+    """
+
     style = get_mpl_defaults() if apply_default_style else {}
 
     with mpl.rc_context(rc=style):

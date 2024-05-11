@@ -58,6 +58,8 @@ envs.docs.extra-dependencies = [
   "watermark",
   "ipywidgets",
   "jupytext",
+  "matplotlib",
+  "sphinx-autodoc-typehints",
 ]
 
 envs.tests.extra-dependencies = ["pytest"]
