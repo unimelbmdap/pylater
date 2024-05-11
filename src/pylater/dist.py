@@ -37,7 +37,7 @@ class LATER:
 
     """
 
-    def __new__(  # type: ignore
+    def __new__(
         cls,
         name: str,
         mu: float | pm.Distribution,

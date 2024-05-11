@@ -56,8 +56,11 @@ class ReciprobitPlot:
         fig_ax: tuple[matplotlib.figure.Figure, matplotlib.axes.Axes] | None = None,
         min_rt_s: float = 50 / 1000,
         max_rt_s: float = 2000 / 1000,
-        min_p: float = 0.001,
-        max_p: float = 1 - 0.001,
+        min_p: float = 0.0,
+        max_p: float = 1.0,
+        linthresh: float = 0.1 / 100,
+        linscale: float = 0.05,
+        axis_position_offset: float = 4,
         apply_style: bool = True,
     ) -> None:
         """
@@ -74,6 +77,10 @@ class ReciprobitPlot:
         apply_style
             Whether to apply a custom styling to the figure or leave the defaults.
         """
+
+        self._linthresh = linthresh
+        self._linscale = linscale
+        self._axis_position_offset = axis_position_offset
 
         self._style = ReciprobitPlot.style if apply_style else {}
 
@@ -104,7 +111,7 @@ class ReciprobitPlot:
 
             y_ticks = (
                 np.array(
-                    [0.1, 0.5, 1, 2, 5, 10, 20, 30, 50, 70, 80, 90, 95, 98, 99, 99.5, 99.9]
+                    [0.0, 0.1, 0.5, 1, 2, 5, 10, 20, 30, 50, 70, 80, 90, 95, 98, 99, 99.5, 99.9, 100.0]
                 )
                 / 100
             )
@@ -112,9 +119,19 @@ class ReciprobitPlot:
             self.min_p = min_p
             self.max_p = max_p
 
-            self._ax.set_yscale(value="probit")
+            self._ax.set_yscale(
+                value="probit",
+                linthresh=self._linthresh,
+                linscale=self._linscale,
+            )
             self._ax.set_yticks(ticks=y_ticks)
             self._ax.set_ylabel(ylabel="Cumulative probability (%)")
+
+            for spine in (
+                *tuple(self._ax.spines.values()),
+                *tuple(self._ax_promptness.spines.values()),
+            ):
+                spine.set_position(("outward", self._axis_position_offset))
 
     def plot_data(
         self,
