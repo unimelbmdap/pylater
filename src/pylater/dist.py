@@ -44,7 +44,7 @@ class LATER:
         sigma: float | pm.Distribution,
         sigma_e: float | pm.Distribution,
         observed_rt_s: npt.NDArray[np.float64] | None = None,
-        **kwargs,
+        **kwargs: str | float | npt.NDArray[np.float64],
     ) -> pm.CustomDist:
 
         observed_promptness = 1 / observed_rt_s if observed_rt_s is not None else None
@@ -109,6 +109,4 @@ def random(
 
     promptness = np.where(later > early, later, early)
 
-    rt = 1 / promptness
-
-    return rt
+    return 1 / promptness

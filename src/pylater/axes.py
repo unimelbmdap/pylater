@@ -2,10 +2,8 @@ from __future__ import annotations
 
 import enum
 
-import matplotlib as mpl
 import matplotlib.axes
 import matplotlib.figure
-import matplotlib.pyplot as plt
 import matplotlib.scale
 import matplotlib.ticker
 import matplotlib.transforms

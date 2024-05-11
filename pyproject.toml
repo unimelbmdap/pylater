@@ -99,7 +99,7 @@ ignore_missing_imports = true
 [tool.ruff]
 line-length = 88
 exclude = ["docs/*"]
-extend-select = [
+lint.extend-select = [
   "NPY",  # numpy
   "PTH",  # flake8-usepathlib
   "Q",  # flake8-quotes

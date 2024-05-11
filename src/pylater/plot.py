@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import enum
+import typing
 
 import arviz as az
 import matplotlib as mpl
@@ -11,7 +12,6 @@ import matplotlib.scale
 import matplotlib.ticker
 import matplotlib.transforms
 import numpy as np
-import numpy.typing as npt
 import scipy.stats
 import xarray as xr
 
@@ -30,7 +30,7 @@ class PredictiveDataType(enum.Enum):
 
 class ReciprobitPlot:
 
-    style: dict[str, list[str] | float | bool] = {
+    style: typing.ClassVar[dict[str, list[str] | float | bool]] = {
         # font sizes
         "font.size": 9,
         "axes.titlesize": 9,
