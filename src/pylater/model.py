@@ -17,7 +17,7 @@ def demo():
             mu=mu,
             sigma=sigma,
             sigma_e=sigma_e,
-            observed=data.rt_s,
+            observed_rt_s=data.rt_s,
         )
 
     return model

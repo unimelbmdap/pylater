@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import enum
 
+import arviz as az
 import matplotlib as mpl
 import matplotlib.axes
 import matplotlib.figure
@@ -12,187 +13,24 @@ import matplotlib.transforms
 import numpy as np
 import numpy.typing as npt
 import scipy.stats
+import xarray as xr
+
+import pylater.axes
 
 
-class AxisType(enum.Enum):
-    TIME = "time"
-    PROMPTNESS = "promptness"
+class DataPlotType(enum.Enum):
+    STEP = "step"
+    SCATTER = "scatter"
 
 
-class ReciprobitTimeTransform(matplotlib.transforms.Transform):
-    input_dims = output_dims = 1
-
-    def __init__(self) -> None:
-        super().__init__()
-
-    def transform_non_affine(self, a: npt.ArrayLike) -> npt.NDArray[np.float64]:
-        with np.errstate(divide="ignore", invalid="ignore"):
-            values: npt.NDArray[np.float64] = -1.0 / np.array(a)
-
-        return values
-
-    def inverted(self) -> matplotlib.transforms.Transform:
-        return ReciprobitTimeTransformInverted()
+class PredictiveDataType(enum.Enum):
+    PRIOR = "prior"
+    POSTERIOR = "posterior"
 
 
-class ReciprobitTimeTransformInverted(matplotlib.transforms.Transform):
-    input_dims = output_dims = 1
+class ReciprobitPlot:
 
-    def __init__(self) -> None:
-        super().__init__()
-
-    def transform_non_affine(self, a: npt.ArrayLike) -> npt.NDArray[np.float64]:
-        return -1.0 / np.array(a)
-
-    def inverted(self) -> matplotlib.transforms.Transform:
-        return ReciprobitTimeTransform()
-
-
-class ReciprobitTimeScale(matplotlib.scale.ScaleBase):
-    name = "reciprobit_time"
-
-    def __init__(
-        self,
-        axis: matplotlib.axis.Axis,
-        axis_type: AxisType = AxisType.TIME,
-    ) -> None:
-        super().__init__(axis=axis)
-        self.axis_type = axis_type
-
-    def get_transform(self) -> matplotlib.transforms.Transform:
-        return ReciprobitTimeTransform()
-
-    def set_default_locators_and_formatters(self, axis: matplotlib.axis.Axis) -> None:
-        def _tick_formatter(x: float, pos: float) -> str:  # noqa: ARG001
-            if self.axis_type == AxisType.TIME:
-                return f"{x * 1000:,.5g}"
-            if self.axis_type == AxisType.PROMPTNESS:
-                if x <= 0:
-                    return ""
-                return f"{1 / x:,.2g}"
-            return ""
-
-        axis.set_major_formatter(
-            formatter=matplotlib.ticker.FuncFormatter(func=_tick_formatter)
-        )
-
-    def limit_range_for_scale(
-        self,
-        vmin: float,
-        vmax: float,
-        minpos: float,
-    ) -> tuple[float, float]:
-        if not np.isfinite(minpos):
-            minpos = 1e-7
-        return (minpos if vmin <= 0 else vmin, vmax)
-
-
-class ProbitTransform(matplotlib.transforms.Transform):
-    input_dims = output_dims = 1
-
-    def transform_non_affine(self, a: npt.ArrayLike) -> npt.NDArray[np.float64]:
-        z: npt.NDArray[np.float64] = scipy.stats.norm.ppf(q=a)
-        return z
-
-    def inverted(self) -> matplotlib.transforms.Transform:
-        return InverseProbitTransform()
-
-
-class InverseProbitTransform(matplotlib.transforms.Transform):
-    input_dims = output_dims = 1
-
-    def transform_non_affine(self, a: npt.ArrayLike) -> npt.NDArray[np.float64]:
-        p: npt.NDArray[np.float64] = scipy.stats.norm.cdf(x=a)
-        return p
-
-    def inverted(self) -> matplotlib.transforms.Transform:
-        return ProbitTransform()
-
-
-class ProbitScale(matplotlib.scale.ScaleBase):
-    name = "probit"
-
-    def get_transform(self) -> matplotlib.transforms.Transform:
-        return ProbitTransform()
-
-    def set_default_locators_and_formatters(self, axis: matplotlib.axis.Axis) -> None:
-        def _tick_formatter(x: float, pos: float) -> str:  # noqa: ARG001
-            return f"{x*100:.3g}"
-
-        axis.set_major_formatter(matplotlib.ticker.FuncFormatter(func=_tick_formatter))
-
-    def limit_range_for_scale(
-        self,
-        vmin: float,
-        vmax: float,
-        minpos: float,
-    ) -> tuple[float, float]:
-        if not np.isfinite(minpos):
-            minpos = 1e-7
-        return (minpos if vmin <= 0 else vmin, 1 - minpos if vmax >= 1 else vmax)
-
-
-def create_reciprobit_figure(
-    min_rt_s: float = 50 / 1000,
-    max_rt_s: float = 2000 / 1000,
-    p_min: float = 0.001,
-    p_max: float = 1 - 0.001,
-    apply_style: bool = True,
-) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
-    """
-    Create a Matplotlib figure in reciprobit space.
-
-    Parameters
-    ----------
-    min_rt_s, max_rt_s
-        Minimum and maxium reaction time values, in seconds, for the x axis.
-    p_min, p_max
-        Minimum and maximum probability values, for the y axis.
-    apply_style
-        Whether to apply a custom styling to the figure or leave the defaults.
-
-    Returns
-    -------
-    matplotlib.figure.Figure
-        Figure.
-    matplotlib.axes.Axes
-        Axes.
-    """
-
-    style = get_mpl_defaults() if apply_default_style else {}
-
-    with mpl.rc_context(rc=style):
-        (fig, ax) = plt.subplots()
-
-        tick_locations_ms = np.array([50, 100, 150, 200, 300, 500, 1000])
-
-        ax.set_xticks(ticks=tick_locations_ms / 1000)
-        ax.set_xscale(value="reciprobit_time")
-        ax.set_xlabel(xlabel="Latency (ms)")
-        ax.set_xlim((min_rt_s, max_rt_s))
-
-        ax_promptness = ax.secondary_xaxis(location="top")
-        ax_promptness.set_xscale(value="reciprobit_time", axis_type=AxisType.PROMPTNESS)
-        ax_promptness.set_xticks(ticks=tick_locations_ms / 1000)
-        ax_promptness.set_xlabel(xlabel="Promptness (1/s)")
-
-        y_ticks = (
-            np.array(
-                [0.1, 0.5, 1, 2, 5, 10, 20, 30, 50, 70, 80, 90, 95, 98, 99, 99.5, 99.9]
-            )
-            / 100
-        )
-
-        ax.set_ylim((p_min, p_max))
-        ax.set_yscale(value="probit")
-        ax.set_yticks(ticks=y_ticks)
-        ax.set_ylabel(ylabel="Cumulative probability (%)")
-
-    return (fig, ax)
-
-
-def get_mpl_defaults() -> dict[str, list[str] | float | bool]:
-    defaults: dict[str, list[str] | float | bool] = {
+    style: dict[str, list[str] | float | bool] = {
         # font sizes
         "font.size": 9,
         "axes.titlesize": 9,
@@ -213,8 +51,268 @@ def get_mpl_defaults() -> dict[str, list[str] | float | bool]:
         ],
     }
 
-    return defaults
+    def __init__(
+        self,
+        fig_ax: tuple[matplotlib.figure.Figure, matplotlib.axes.Axes] | None = None,
+        min_rt_s: float = 50 / 1000,
+        max_rt_s: float = 2000 / 1000,
+        min_p: float = 0.001,
+        max_p: float = 1 - 0.001,
+        apply_style: bool = True,
+    ) -> None:
+        """
+        Create a Matplotlib figure in reciprobit space.
+
+        Parameters
+        ----------
+        fix_ax
+            An already-created figure/axes pair.
+        min_rt_s, max_rt_s
+            Minimum and maxium reaction time values, in seconds, for the x axis.
+        p_min, p_max
+            Minimum and maximum probability values, for the y axis.
+        apply_style
+            Whether to apply a custom styling to the figure or leave the defaults.
+        """
+
+        self._style = ReciprobitPlot.style if apply_style else {}
+
+        with mpl.rc_context(rc=self.style):
+
+            (self.fig, self._ax) = (
+                fig_ax
+                if fig_ax is not None
+                else plt.subplots()
+            )
+
+            tick_locations_ms = np.array([50, 100, 150, 200, 300, 500, 1000])
+
+            self._ax.set_xticks(ticks=tick_locations_ms / 1000)
+            self._ax.set_xscale(value="reciprobit_time")
+            self._ax.set_xlabel(xlabel="Latency (ms)")
+
+            self.min_rt_s = min_rt_s
+            self.max_rt_s = max_rt_s
+
+            self._ax_promptness = self._ax.secondary_xaxis(location="top")
+            self._ax_promptness.set_xscale(
+                value="reciprobit_time",
+                axis_type=pylater.axes.AxisType.PROMPTNESS,
+            )
+            self._ax_promptness.set_xticks(ticks=tick_locations_ms / 1000)
+            self._ax_promptness.set_xlabel(xlabel="Promptness (1/s)")
+
+            y_ticks = (
+                np.array(
+                    [0.1, 0.5, 1, 2, 5, 10, 20, 30, 50, 70, 80, 90, 95, 98, 99, 99.5, 99.9]
+                )
+                / 100
+            )
+
+            self.min_p = min_p
+            self.max_p = max_p
+
+            self._ax.set_yscale(value="probit")
+            self._ax.set_yticks(ticks=y_ticks)
+            self._ax.set_ylabel(ylabel="Cumulative probability (%)")
+
+    def plot_data(
+        self,
+        data: pylater.data.Dataset,
+        plot_type: str = "step",
+        n_points: int = 1000,
+        **kwargs: str | float,
+    ) -> ReciprobitPlot:
+
+        data_plot_type = DataPlotType(plot_type)
+
+        if "label" not in kwargs:
+            kwargs["label"] = data.name
+
+        if data_plot_type is DataPlotType.STEP:
+
+            x_rt_s = np.logspace(
+                np.log10(self.min_rt_s),
+                np.log10(self.max_rt_s),
+                n_points,
+            )
+
+            trial_ecdf_p = np.clip(
+                data.ecdf.cdf.evaluate(x_rt_s),
+                0.0001,
+                1 - 0.0001,
+            )
 
 
-matplotlib.scale.register_scale(scale_class=ReciprobitTimeScale)
-matplotlib.scale.register_scale(scale_class=ProbitScale)
+            with mpl.rc_context(rc=self.style):
+                self._ax.step(
+                    x_rt_s,
+                    trial_ecdf_p,
+                    **kwargs,
+                )
+
+        elif data_plot_type is DataPlotType.SCATTER:
+
+            with mpl.rc_context(rc=self.style):
+                self._ax.scatter(
+                    data.ecdf_x,
+                    data.ecdf_p,
+                    **kwargs,
+                )
+
+        return self
+
+    def plot_model(
+        self,
+        idata: az.data.inference_data.InferenceData,
+        n_points: int = 1000,
+        **kwargs: str | float,
+    ) -> ReciprobitPlot:
+
+        dataset: xr.Dataset = az.extract(
+            data=idata,
+            group="posterior",
+            combined=True,
+        )
+
+        dataset = dataset.expand_dims(dim="x", axis=0)
+
+        x_rt_s = np.logspace(
+            np.log10(self.min_rt_s),
+            np.log10(self.max_rt_s),
+            n_points,
+        )
+
+        log_p = pylater.dist.logcdf(
+            value=1 / x_rt_s[:, np.newaxis],
+            mu=dataset.mu.values,
+            sigma=dataset.sigma.values,
+            sigma_e=dataset.sigma_e.values,
+        ).eval()
+
+        p = 1 - np.exp(log_p)
+
+        quantiles = np.quantile(p, q=[0.5, 0.025, 0.975], axis=1)
+
+        quantiles = np.clip(quantiles, 0.0001, 1 - 0.0001)
+
+        with mpl.rc_context(rc=self.style):
+
+            if "alpha" not in kwargs:
+                kwargs["alpha"] = 0.5
+
+            self._ax.fill_between(
+                x_rt_s,
+                quantiles[1, :],
+                quantiles[2, :],
+                **kwargs,
+            )
+
+            self._ax.plot(
+                x_rt_s,
+                quantiles[0, :],
+            )
+
+        return self
+
+    def plot_predictive(
+        self,
+        idata: az.data.inference_data.InferenceData,
+        predictive_type: str,
+        observed_variable_name: str = "obs",
+        n_points: int = 1000,
+        **kwargs: str | float,
+    ) -> ReciprobitPlot:
+
+        pred_type = PredictiveDataType(predictive_type)
+
+        x_rt_s = np.logspace(
+            np.log10(self.min_rt_s),
+            np.log10(self.max_rt_s),
+            n_points,
+        )
+
+        group = pred_type.value + "_predictive"
+
+        dataset: xr.Dataset = az.extract(
+            data=idata,
+            group=group,
+            combined=True,
+            keep_dataset=True,
+            var_names=observed_variable_name,
+        )
+
+        (data,) = dataset.data_vars.values()
+
+        def gen_ecdf(sample_data: xr.DataArray) -> xr.DataArray:
+            ecdf = scipy.stats.ecdf(sample=np.squeeze(sample_data.values))
+
+            ecdf_p = ecdf.cdf.evaluate(x=x_rt_s)
+
+            return xr.DataArray(
+                data=ecdf_p,
+                coords={"rt": x_rt_s},
+            )
+
+        da = data.groupby(
+            group="sample", squeeze=False
+        ).map(gen_ecdf)
+
+        quantiles = da.quantile(dim="sample", q=[0.025, 0.5, 0.975])
+
+        quantiles = quantiles.clip(0.0001, 1 - 0.0001)
+
+        with mpl.rc_context(rc=self.style):
+
+            if "alpha" not in kwargs:
+                kwargs["alpha"] = 0.5
+
+            self._ax.fill_between(
+                da.rt.values,
+                quantiles.sel(quantile=0.025).values,
+                quantiles.sel(quantile=0.975).values,
+                **kwargs,
+            )
+
+            self._ax.plot(
+                da.rt.values,
+                quantiles.sel(quantile=0.5).values,
+            )
+
+        return self
+
+    @property
+    def min_rt_s(self) -> float:
+        return self._min_rt_s
+
+    @min_rt_s.setter
+    def min_rt_s(self, value: float) -> None:
+        self._min_rt_s = value
+        self._ax.set_xlim(xmin=value)
+
+    @property
+    def max_rt_s(self) -> float:
+        return self._max_rt_s
+
+    @max_rt_s.setter
+    def max_rt_s(self, value: float) -> None:
+        self._max_rt_s = value
+        self._ax.set_xlim(xmax=value)
+
+    @property
+    def min_p(self) -> float:
+        return self._min_p
+
+    @min_p.setter
+    def min_p(self, value: float) -> None:
+        self._min_p = value
+        self._ax.set_ylim(ymin=value)
+
+    @property
+    def max_p(self) -> float:
+        return self._max_p
+
+    @max_p.setter
+    def max_p(self, value: float) -> None:
+        self._max_p = value
+        self._ax.set_ylim(ymax=value)

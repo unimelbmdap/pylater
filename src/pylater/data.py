@@ -10,18 +10,18 @@ import scipy.stats
 
 
 class Dataset:
-    __slots__ = ("name", "rt_s", "promptness", "ecdf_p", "ecdf_x")
+    __slots__ = ("name", "rt_s", "promptness", "ecdf", "ecdf_p", "ecdf_x")
 
-    def __init__(self, name: str, rt_s: npt.NDArray[np.float_]) -> None:
+    def __init__(self, name: str, rt_s: npt.NDArray[np.float64]) -> None:
         self.name = name
         self.rt_s = rt_s
 
-        self.promptness = 1.0 / self.rt_s.astype(float)
+        self.promptness = 1.0 / self.rt_s
 
-        ecdf = scipy.stats.ecdf(sample=self.rt_s).cdf
+        self.ecdf = scipy.stats.ecdf(sample=self.rt_s)
 
-        self.ecdf_p = ecdf.probabilities
-        self.ecdf_x = ecdf.quantiles
+        self.ecdf_p = self.ecdf.cdf.probabilities
+        self.ecdf_x = self.ecdf.cdf.quantiles
 
 
 @functools.lru_cache

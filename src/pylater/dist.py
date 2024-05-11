@@ -57,7 +57,7 @@ class LATER:
             logp=logp,
             logcdf=logcdf,
             random=random,
-            observed_rt_s=observed_promptness,
+            observed=observed_promptness,
             **kwargs,
         )
 
