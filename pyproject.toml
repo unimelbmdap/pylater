@@ -23,9 +23,9 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Documentation = "https://github.com/unknown/pylater#readme"
-Issues = "https://github.com/unknown/pylater/issues"
-Source = "https://github.com/unknown/pylater"
+Documentation = "https://github.com/unimelbmdap/pylater"
+Issues = "https://github.com/unimelbmdap/pylater/issues"
+Source = "https://github.com/unimelbmdap/pylater"
 
 [tool.hatch]
 version.path = "src/pylater/__init__.py"
@@ -36,18 +36,30 @@ envs.default.dependencies = [
   "matplotlib",
   "xarray",
 ]
+
+# dev
+envs.dev.extra-dependencies = [
+  "ruff",
+  "black",
+]
+envs.dev.scripts.lint = "ruff {args:check src/pylater tests}"
+envs.dev.scripts.style = "black {args:.}"
+
+# ipython
 envs.interactive.extra-dependencies = [
   "ipython",
   "pyqt6",
   "pickleshare",
 ]
 envs.interactive.scripts.session = "ipython --pylab=qt"
+
+# mypy
 envs.types.extra-dependencies = [
   "mypy"
 ]
-#envs.types.scripts.check = "mypy --untyped-calls-exclude=arviz {args:src/pylater tests}"
 envs.types.scripts.check = "mypy {args:src/pylater tests}"
 
+# docs
 envs.docs.scripts.build = "sphinx-build docs/ public"
 envs.docs.scripts.jupyterlab = "jupyter lab"
 envs.docs.extra-dependencies = [
@@ -59,15 +71,16 @@ envs.docs.extra-dependencies = [
   "ipywidgets",
   "jupytext",
   "matplotlib",
+  "pyqt6",
   "sphinx-autodoc-typehints",
 ]
 
+# tests
 envs.tests.extra-dependencies = ["pytest"]
 envs.tests.scripts.test = "pytest {args}"
 
 [[tool.hatch.envs.tests.matrix]]
 python = ["3.10", "3.11"]
-
 
 [tool.mypy]
 plugins = "numpy.typing.mypy_plugin"
@@ -96,17 +109,31 @@ module = [
 ]
 ignore_missing_imports = true
 
-[tool.ruff]
+[tool.black]
 line-length = 88
-exclude = ["docs/*"]
-lint.extend-select = [
-  "NPY",  # numpy
-  "PTH",  # flake8-usepathlib
-  "Q",  # flake8-quotes
+preview = false
+skip-source-first-line = false
+skip-string-normalization = false
+skip-magic-trailing-comma = false
+
+[tool.ruff]
+exclude = []
+lint.select = [
+  "E",  # error
+  "F",  # pyflakes
+  "UP",  # pyupgrade
+  "N",  # pep8-naming
   "ANN",  # flake8-annotations
+  "A",  # flake8-builtins
+  "PTH",  # flake8-usepathlib
+  "B",  # flake8-bugbear
+  "Q",  # flake8-quotes
+  "ARG",  # flake8-unused-arguments
+  "NPY",  # numpy
+  "PERF",  # perflint
+  "RUF",  # ruff
 ]
+target-version = "py310"
 lint.ignore = [
-	"ANN101",  # typing self
-  "FBT001",  # bool arguments
-  "FBT002",  # bool arguments
+  "ANN101",  # typing self
 ]
