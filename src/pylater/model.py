@@ -1,3 +1,14 @@
+"""
+
+If wanting to use `az.compare`, the observed variables need to be concatenated.
+
+For example:
+shift.log_likelihood["obs"] = xr.concat([shift.log_likelihood[f"obs_{dd.name}"].rename({f"obs_{dd.name}_dim_0":"trial"}) for dd in d],"trial")
+
+
+"""
+
+
 from __future__ import annotations
 
 import enum
@@ -21,7 +32,7 @@ def build_default_model(
     share_type: str | None = None,
 ) -> pm.Model:
 
-    share_type = (
+    sharing = (
         ShareType(share_type)
         if share_type is not None
         else None
@@ -31,20 +42,19 @@ def build_default_model(
 
     dataset_names = [dataset.name for dataset in datasets]
 
-    if share_type is ShareType.SHIFT:
+    if sharing is None:
+        n_sigma = n_k = n_datasets
+        sigma_dims = k_dims = "dataset"
+    elif sharing is ShareType.SHIFT:
         n_sigma = 1
         n_k = n_datasets
         sigma_dims = "shared"
         k_dims = "dataset"
-    elif share_type is ShareType.SWIVEL:
+    elif sharing is ShareType.SWIVEL:
         n_sigma = n_datasets
         n_k = 1
         sigma_dims = "dataset"
         k_dims = "shared"
-    else:
-        assert share_type is None
-        n_sigma = n_k = n_datasets
-        sigma_dims = k_dims = "dataset"
 
     with pm.Model(
         coords={
@@ -107,47 +117,6 @@ def build_default_model(
                 sigma=sigma_all[i_dataset],
                 sigma_e=sigma_e[i_dataset],
                 observed_rt_s=dataset.rt_s,
-            )
-
-    return model
-
-
-def demo():
-    data = pylater.data.cw1995["a_p95"]
-
-    with pm.Model(check_bounds=False) as model:
-        mu = pm.Normal("mu", mu=3, sigma=1.5)
-        sigma = pm.HalfNormal("sigma", sigma=3)
-        sigma_e = pm.HalfNormal("sigma_e", sigma=5)
-
-        pylater.dist.LATER(
-            name="obs",
-            mu=mu,
-            sigma=sigma,
-            sigma_e=sigma_e,
-            observed_rt_s=data.rt_s,
-        )
-
-    return model
-
-
-def demo_shared():
-    data = pylater.data.cw1995
-
-    data = {key: value for (key, value) in data.items() if key.startswith("b")}
-
-    with pm.Model(check_bounds=False) as model:
-        mu = pm.Normal("mu", mu=3, sigma=1.5, size=len(data))
-        sigma = pm.HalfNormal("sigma", sigma=3)
-        sigma_e = pm.HalfNormal("sigma_e", sigma=5, size=len(data))
-
-        for i, (key, value) in enumerate(data.items()):
-            pylater.dist.model(
-                name=f"obs_{key}",
-                mu=mu[i],
-                sigma=sigma,
-                sigma_e=sigma_e[i],
-                observed=value.promptness,
             )
 
     return model
