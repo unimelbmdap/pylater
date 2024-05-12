@@ -18,8 +18,14 @@ class ShareType(enum.Enum):
 
 def build_default_model(
     datasets: typing.Sequence[pylater.data.Dataset],
-    share_type: ShareType | None = None,
+    share_type: str | None = None,
 ) -> pm.Model:
+
+    share_type = (
+        ShareType(share_type)
+        if share_type is not None
+        else None
+    )
 
     n_datasets = len(datasets)
 
@@ -54,9 +60,12 @@ def build_default_model(
             dims=sigma_dims,
         )
 
-        sigma_all = pm.math.pt.broadcast_to(
-            x=sigma,
-            shape=(n_datasets,),
+        sigma_all = pm.Deterministic(
+            "sigma_all",
+            pm.math.pt.repeat(
+                x=sigma,
+                repeats=n_datasets - n_sigma + 1,
+            )
         )
 
         # 95% CI of [2.5, 10]
@@ -67,9 +76,12 @@ def build_default_model(
             dims=k_dims,
         )
 
-        k_all = pm.math.pt.broadcast_to(
-            x=k,
-            shape=(n_datasets,),
+        k_all = pm.Deterministic(
+            "k_all",
+            pm.math.pt.repeat(
+                x=k,
+                repeats=n_datasets - n_k + 1,
+            )
         )
 
         # 95% CI of [2, 8]
