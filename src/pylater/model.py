@@ -42,6 +42,7 @@ def build_default_model(
         sigma_dims = "dataset"
         k_dims = "shared"
     else:
+        assert share_type is None
         n_sigma = n_k = n_datasets
         sigma_dims = k_dims = "dataset"
 
@@ -60,12 +61,9 @@ def build_default_model(
             dims=sigma_dims,
         )
 
-        sigma_all = pm.Deterministic(
-            "sigma_all",
-            pm.math.pt.repeat(
-                x=sigma,
-                repeats=n_datasets - n_sigma + 1,
-            )
+        sigma_all = pm.math.pt.repeat(
+            x=sigma,
+            repeats=n_datasets - n_sigma + 1,
         )
 
         # 95% CI of [2.5, 10]
@@ -76,12 +74,9 @@ def build_default_model(
             dims=k_dims,
         )
 
-        k_all = pm.Deterministic(
-            "k_all",
-            pm.math.pt.repeat(
-                x=k,
-                repeats=n_datasets - n_k + 1,
-            )
+        k_all = pm.math.pt.repeat(
+            x=k,
+            repeats=n_datasets - n_k + 1,
         )
 
         # 95% CI of [2, 8]
@@ -109,7 +104,7 @@ def build_default_model(
             pylater.LATER(
                 name=f"obs_{dataset.name}",
                 mu=mu[i_dataset],
-                sigma=sigma[i_dataset],
+                sigma=sigma_all[i_dataset],
                 sigma_e=sigma_e[i_dataset],
                 observed_rt_s=dataset.rt_s,
             )
