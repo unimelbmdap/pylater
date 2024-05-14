@@ -1,13 +1,3 @@
-"""
-
-If wanting to use `az.compare`, the observed variables need to be concatenated.
-
-For example:
-shift.log_likelihood["obs"] = xr.concat([shift.log_likelihood[f"obs_{dd.name}"].rename({f"obs_{dd.name}_dim_0":"trial"}) for dd in d],"trial")
-
-
-"""
-
 
 from __future__ import annotations
 
