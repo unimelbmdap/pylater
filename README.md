@@ -14,7 +14,7 @@ This library provides three main features:
 * Example data digitised from Carpenter & Williams (1995).
 
 > [!NOTE]
-> Also see [https://github.com/unimelbmdap/LATERmodel/](LATERmodel) for an R package with a non-Bayesian implementation of LATER and with a [graphical interface](https://later.researchsoftware.unimelb.edu.au/).
+> Also see [https://unimelbmdap.github.io/LATERmodel/](LATERmodel) for an R package with a non-Bayesian implementation of LATER and with a [graphical interface](https://later.researchsoftware.unimelb.edu.au/).
 
 ## Installation
 
