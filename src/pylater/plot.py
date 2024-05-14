@@ -12,8 +12,6 @@ import matplotlib.scale
 import matplotlib.ticker
 import matplotlib.transforms
 
-import IPython.display
-
 import numpy as np
 import scipy.stats
 import xarray as xr
@@ -77,19 +75,26 @@ class ReciprobitPlot:
             Minimum and maxium reaction time values, in seconds, for the x axis.
         p_min, p_max
             Minimum and maximum probability values, for the y axis.
+        linthresh
+            The y-axis is on a probit scale between `linthresh` and `1 - linthresh`,
+            and a linear scale otherwise.
+        linscale
+            The probit range of the y-axis covers `1 - 2 * linscale` of the total range.
+        axis_position_offset
+            The amount, in points, to offset the axes from the plot region.
         apply_style
             Whether to apply a custom styling to the figure or leave the defaults.
         """
 
         self._linthresh = linthresh
         self._linscale = linscale
-        self._axis_position_offset = axis_position_offset
+        self.axis_position_offset = axis_position_offset
 
         self._style = ReciprobitPlot.style if apply_style else {}
 
         with mpl.rc_context(rc=self.style):
 
-            (self.fig, self._ax) = (
+            (self.fig, self.ax) = (
                 fig_ax
                 if fig_ax is not None
                 else plt.subplots()
@@ -97,20 +102,20 @@ class ReciprobitPlot:
 
             tick_locations_ms = np.array([50, 75, 100, 150, 200, 300, 500, 1000])
 
-            self._ax.set_xticks(ticks=tick_locations_ms / 1000)
-            self._ax.set_xscale(value="reciprobit_time")
-            self._ax.set_xlabel(xlabel="Latency (ms)")
+            self.ax.set_xticks(ticks=tick_locations_ms / 1000)
+            self.ax.set_xscale(value="reciprobit_time")
+            self.ax.set_xlabel(xlabel="Latency (ms)")
 
             self.min_rt_s = min_rt_s
             self.max_rt_s = max_rt_s
 
-            self._ax_promptness = self._ax.secondary_xaxis(location="top")
-            self._ax_promptness.set_xscale(
+            self.ax_promptness = self.ax.secondary_xaxis(location="top")
+            self.ax_promptness.set_xscale(
                 value="reciprobit_time",
                 axis_type=pylater.axes.AxisType.PROMPTNESS,
             )
-            self._ax_promptness.set_xticks(ticks=tick_locations_ms / 1000)
-            self._ax_promptness.set_xlabel(xlabel="Promptness (1/s)")
+            self.ax_promptness.set_xticks(ticks=tick_locations_ms / 1000)
+            self.ax_promptness.set_xlabel(xlabel="Promptness (1/s)")
 
             y_ticks = (
                 np.array(
@@ -122,19 +127,19 @@ class ReciprobitPlot:
             self.min_p = min_p
             self.max_p = max_p
 
-            self._ax.set_yscale(
+            self.ax.set_yscale(
                 value="probit",
                 linthresh=self._linthresh,
                 linscale=self._linscale,
             )
-            self._ax.set_yticks(ticks=y_ticks)
-            self._ax.set_ylabel(ylabel="Cumulative probability (%)")
+            self.ax.set_yticks(ticks=y_ticks)
+            self.ax.set_ylabel(ylabel="Cumulative probability (%)")
 
             for spine in (
-                *tuple(self._ax.spines.values()),
-                *tuple(self._ax_promptness.spines.values()),
+                *tuple(self.ax.spines.values()),
+                *tuple(self.ax_promptness.spines.values()),
             ):
-                spine.set_position(("outward", self._axis_position_offset))
+                spine.set_position(("outward", self.axis_position_offset))
 
     def plot_data(
         self,
@@ -143,11 +148,35 @@ class ReciprobitPlot:
         n_points: int = 1000,
         **kwargs: str | float,
     ) -> ReciprobitPlot:
+        """
+        Plot an ECDF of data observations.
+
+        Parameters
+        ----------
+        data
+            Dataset containing the observations.
+        plot_type
+            Plots the data as a 'step' plot (`step`) or as individual
+            points (`scatter`).
+        n_points
+            For 'step' plots, how many points to use when evaluating the ECDF.
+        **kwargs
+            Any additional keyword arguments are passed directly to `plt.step` or
+            `plt.scatter`.
+
+        Returns
+        -------
+        ReciprobitPlot
+            The `ReciprobitPlot` instance.
+        """
 
         data_plot_type = DataPlotType(plot_type)
 
         if "label" not in kwargs:
             kwargs["label"] = data.name
+
+        if "color" not in kwargs or "c" not in kwargs:
+            kwargs["c"] = "black"
 
         if data_plot_type is DataPlotType.STEP:
 
@@ -157,27 +186,28 @@ class ReciprobitPlot:
                 n_points,
             )
 
-            trial_ecdf_p = np.clip(
-                data.ecdf.cdf.evaluate(x_rt_s),
-                0.0001,
-                1 - 0.0001,
-            )
+            trial_ecdf_p = data.ecdf.cdf.evaluate(x_rt_s)
 
             with mpl.rc_context(rc=self.style):
-                self._ax.step(
+                self.ax.step(
                     x_rt_s,
                     trial_ecdf_p,
+                    clip_on=False,
                     **kwargs,
                 )
 
         elif data_plot_type is DataPlotType.SCATTER:
 
             with mpl.rc_context(rc=self.style):
-                paths = self._ax.scatter(
+                self.ax.scatter(
                     data.ecdf_x,
                     data.ecdf_p,
+                    clip_on=False,
                     **kwargs,
                 )
+
+        with mpl.rc_context(rc=self.style):
+            plt.legend()
 
         return self
 
@@ -185,8 +215,46 @@ class ReciprobitPlot:
         self,
         idata: az.data.inference_data.InferenceData,
         n_points: int = 1000,
-        **kwargs: str | float,
+        ci_range: float = 0.95,
+        dataset_name: str | None = None,
+        fill_kwargs: dict[str, typing.Any] | None = None,
+        line_kwargs: dict[str, typing.Any] | None = None,
     ) -> ReciprobitPlot:
+        """
+        Plot a summary of model evaluations using parameters from a posterior
+        distribution.
+
+        Parameters
+        ----------
+        idata
+            Inference data object containing posterior samples.
+        n_points
+            How many points to use when evaluating the model.
+        ci_range
+            Width of the credible interval.
+        dataset_name
+            Name of the dataset to plot. This is used to select a coordinate
+            within a `dataset` dimension in the posterior samples. If `None`,
+            assumes that there is only a single coordinate in the `dataset`
+            dimension.
+        fill_kwargs
+            Keyword arguments passed directly to `plt.fill_between`, for the
+            credible interval.
+        line_kwargs
+            Keyword arguments passed directly to `plt.line`, for the median.
+
+        Returns
+        -------
+        ReciprobitPlot
+            The `ReciprobitPlot` instance.
+        """
+
+        if fill_kwargs is None:
+            fill_kwargs = {}
+        if line_kwargs is None:
+            line_kwargs = {}
+
+        (lower_q, upper_q) = q_from_ci_range(ci_range=ci_range)
 
         dataset: xr.Dataset = az.extract(
             data=idata,
@@ -194,7 +262,11 @@ class ReciprobitPlot:
             combined=True,
         )
 
-        dataset = dataset.expand_dims(dim="x", axis=0)
+        subset = (
+            dataset.sel(dataset=dataset_name)
+            if dataset_name is not None
+            else dataset.squeeze()
+        ).expand_dims(dim="x", axis=0)
 
         x_rt_s = np.logspace(
             np.log10(self.min_rt_s),
@@ -204,33 +276,43 @@ class ReciprobitPlot:
 
         log_p = pylater.dist.logcdf(
             value=1 / x_rt_s[:, np.newaxis],
-            mu=dataset.mu.values,
-            sigma=dataset.sigma.values,
-            sigma_e=dataset.sigma_e.values,
+            mu=subset.mu.values,
+            sigma=subset.sigma.values,
+            sigma_e=subset.sigma_e.values,
         ).eval()
 
         p = 1 - np.exp(log_p)
 
-        quantiles = np.quantile(p, q=[0.5, 0.025, 0.975], axis=1)
-
-        quantiles = np.clip(quantiles, 0.0001, 1 - 0.0001)
+        quantiles = np.quantile(p, q=[0.5, lower_q, upper_q], axis=1)
 
         with mpl.rc_context(rc=self.style):
 
-            if "alpha" not in kwargs:
-                kwargs["alpha"] = 0.5
+            if "alpha" not in fill_kwargs:
+                fill_kwargs["alpha"] = 0.5
 
-            self._ax.fill_between(
+            if "label" not in fill_kwargs:
+                fill_kwargs["label"] = f"{ci_range:.0%} credible interval"
+
+            self.ax.fill_between(
                 x_rt_s,
                 quantiles[1, :],
                 quantiles[2, :],
-                **kwargs,
+                clip_on=False,
+                **fill_kwargs,
             )
 
-            self._ax.plot(
+            if "label" not in line_kwargs:
+                line_kwargs["label"] = "Median"
+
+            self.ax.plot(
                 x_rt_s,
                 quantiles[0, :],
+                clip_on=False,
+                **line_kwargs,
             )
+
+        with mpl.rc_context(rc=self.style):
+            plt.legend()
 
         return self
 
@@ -238,11 +320,46 @@ class ReciprobitPlot:
         self,
         idata: az.data.inference_data.InferenceData,
         predictive_type: str,
-        observed_variable_name: str = "obs",
+        observed_var_name: str | None = None,
         n_points: int = 1000,
-        **kwargs: str | float,
+        ci_range: float = 0.95,
+        fill_kwargs: dict[str, typing.Any] | None = None,
+        line_kwargs: dict[str, typing.Any] | None = None,
     ) -> ReciprobitPlot:
+        """
+        Plot a summary of draws from a prior or posterior predictive
+        distribution.
 
+        Parameters
+        ----------
+        idata
+            Inference data object containing posterior samples.
+        predictive_type
+            Either `prior` or `posterior`.
+        n_points
+            How many points to use when evaluating the model.
+        ci_range
+            Width of the credible interval.
+        observed_var_name
+            Name of the observed variable in the predictive samples. If `None`,
+            assumes that there is only a single variable with observations.
+        fill_kwargs
+            Keyword arguments passed directly to `plt.fill_between`, for the
+            credible interval.
+        line_kwargs
+            Keyword arguments passed directly to `plt.line`, for the median.
+
+        Returns
+        -------
+        ReciprobitPlot
+            The `ReciprobitPlot` instance.
+        """
+
+        if fill_kwargs is None:
+            fill_kwargs = {}
+        if line_kwargs is None:
+            line_kwargs = {}
+            
         pred_type = PredictiveDataType(predictive_type)
 
         x_rt_s = np.logspace(
@@ -258,10 +375,13 @@ class ReciprobitPlot:
             group=group,
             combined=True,
             keep_dataset=True,
-            var_names=observed_variable_name,
         )
 
-        (data,) = dataset.data_vars.values()
+        data = (
+            dataset.to_dataarray()
+            if observed_var_name is None
+            else dataset[observed_var_name]
+        )
 
         def gen_ecdf(sample_data: xr.DataArray) -> xr.DataArray:
             ecdf = scipy.stats.ecdf(sample=np.squeeze(sample_data.values))
@@ -277,26 +397,40 @@ class ReciprobitPlot:
             group="sample", squeeze=False
         ).map(gen_ecdf)
 
-        quantiles = da.quantile(dim="sample", q=[0.025, 0.5, 0.975])
+        (lower_q, upper_q) = q_from_ci_range(ci_range=ci_range)
 
-        quantiles = quantiles.clip(0.0001, 1 - 0.0001)
+        quantiles = da.quantile(
+            dim="sample",
+            q=[0.5, lower_q, upper_q],
+        )
 
         with mpl.rc_context(rc=self.style):
 
-            if "alpha" not in kwargs:
-                kwargs["alpha"] = 0.5
+            if "alpha" not in fill_kwargs:
+                fill_kwargs["alpha"] = 0.5
 
-            self._ax.fill_between(
+            if "label" not in fill_kwargs:
+                fill_kwargs["label"] = f"{ci_range:.0%} credible interval"
+
+            self.ax.fill_between(
                 da.rt.values,
-                quantiles.sel(quantile=0.025).values,
-                quantiles.sel(quantile=0.975).values,
-                **kwargs,
+                quantiles.sel(quantile=lower_q).values,
+                quantiles.sel(quantile=upper_q).values,
+                clip_on=False,
+                **fill_kwargs,
             )
 
-            self._ax.plot(
+            if "label" not in line_kwargs:
+                line_kwargs["label"] = "Median"
+
+            self.ax.plot(
                 da.rt.values,
                 quantiles.sel(quantile=0.5).values,
+                clip_on=False,
+                **line_kwargs,
             )
+
+            plt.legend()
 
         return self
 
@@ -307,7 +441,7 @@ class ReciprobitPlot:
     @min_rt_s.setter
     def min_rt_s(self, value: float) -> None:
         self._min_rt_s = value
-        self._ax.set_xlim(xmin=value)
+        self.ax.set_xlim(xmin=value)
 
     @property
     def max_rt_s(self) -> float:
@@ -316,7 +450,7 @@ class ReciprobitPlot:
     @max_rt_s.setter
     def max_rt_s(self, value: float) -> None:
         self._max_rt_s = value
-        self._ax.set_xlim(xmax=value)
+        self.ax.set_xlim(xmax=value)
 
     @property
     def min_p(self) -> float:
@@ -324,8 +458,10 @@ class ReciprobitPlot:
 
     @min_p.setter
     def min_p(self, value: float) -> None:
+        if value < 0:
+            raise ValueError("`min_p` must be >= 0")
         self._min_p = value
-        self._ax.set_ylim(ymin=value)
+        self.ax.set_ylim(ymin=value)
 
     @property
     def max_p(self) -> float:
@@ -333,5 +469,11 @@ class ReciprobitPlot:
 
     @max_p.setter
     def max_p(self, value: float) -> None:
+        if value > 1:
+            raise ValueError("`max_p` must be <= 1")
         self._max_p = value
-        self._ax.set_ylim(ymax=value)
+        self.ax.set_ylim(ymax=value)
+
+
+def q_from_ci_range(ci_range: float) -> tuple[float, float]:
+    return ((1 - ci_range) / 2, 1 - (1 - ci_range) / 2)

@@ -9,5 +9,5 @@ __all__ = (
     "LATER",
     "ReciprobitPlot",
     "build_default_model",
-    "combine_multiple_likelihood",
+    "combine_multiple_likelihoods",
 )

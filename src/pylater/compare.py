@@ -14,6 +14,11 @@ def combine_multiple_likelihoods(
     copy_idata: bool = False,
 ) -> az.data.inference_data.InferenceData:
 
+    if not hasattr(idata, "log_likelihood"):
+        raise ValueError(
+            "No log-likelihood found in `idata`; use `pm.compute_log_likelihood()`"
+        )
+
     if obs_var_name in idata.log_likelihood and not overwrite:
         msg = f"Variable {obs_var_name} already exists; either remove or set `overwrite=True`"
         raise ValueError(msg)
@@ -33,10 +38,12 @@ def combine_multiple_likelihoods(
         raise ValueError(msg)
 
     modified_idata = (
-        idata.copy(deep=True)
+        idata.copy()
         if copy_idata
         else idata
     )
+
+    assert hasattr(modified_idata, "log_likelihood")
 
     modified_idata.log_likelihood[obs_var_name] = xr.concat(
         objs=[
