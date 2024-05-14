@@ -11,6 +11,9 @@ import matplotlib.pyplot as plt
 import matplotlib.scale
 import matplotlib.ticker
 import matplotlib.transforms
+
+import IPython.display
+
 import numpy as np
 import scipy.stats
 import xarray as xr
@@ -54,7 +57,7 @@ class ReciprobitPlot:
     def __init__(
         self,
         fig_ax: tuple[matplotlib.figure.Figure, matplotlib.axes.Axes] | None = None,
-        min_rt_s: float = 50 / 1000,
+        min_rt_s: float = 75 / 1000,
         max_rt_s: float = 2000 / 1000,
         min_p: float = 0.0,
         max_p: float = 1.0,
@@ -92,7 +95,7 @@ class ReciprobitPlot:
                 else plt.subplots()
             )
 
-            tick_locations_ms = np.array([50, 100, 150, 200, 300, 500, 1000])
+            tick_locations_ms = np.array([50, 75, 100, 150, 200, 300, 500, 1000])
 
             self._ax.set_xticks(ticks=tick_locations_ms / 1000)
             self._ax.set_xscale(value="reciprobit_time")
@@ -160,7 +163,6 @@ class ReciprobitPlot:
                 1 - 0.0001,
             )
 
-
             with mpl.rc_context(rc=self.style):
                 self._ax.step(
                     x_rt_s,
@@ -171,7 +173,7 @@ class ReciprobitPlot:
         elif data_plot_type is DataPlotType.SCATTER:
 
             with mpl.rc_context(rc=self.style):
-                self._ax.scatter(
+                paths = self._ax.scatter(
                     data.ecdf_x,
                     data.ecdf_p,
                     **kwargs,

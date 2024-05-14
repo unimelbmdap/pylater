@@ -23,6 +23,9 @@ class Dataset:
         self.ecdf_p = self.ecdf.cdf.probabilities
         self.ecdf_x = self.ecdf.cdf.quantiles
 
+    def __repr__(self) -> str:
+        return f"Dataset named '{self.name}' with {len(self.rt_s)} data points"
+
 
 @functools.lru_cache
 def load_cw1995() -> dict[str, Dataset]:

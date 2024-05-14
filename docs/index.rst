@@ -5,5 +5,5 @@ Documentation
     :maxdepth: 1
     :caption: Contents:
 
-    notebooks/priors
+    notebooks/overview
     api

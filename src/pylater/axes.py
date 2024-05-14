@@ -104,13 +104,12 @@ class ProbitTransform(matplotlib.transforms.Transform):
 
         self.z_width = self.lin_bounds_z * 2
 
-
     def transform_non_affine(self, a: npt.ArrayLike) -> npt.NDArray[np.float64]:
 
         a = np.array(a)
         transformed = np.full_like(a, np.nan)
 
-        in_z_region = np.logical_and(transformed >= self.linthresh, a <= (1 - self.linthresh))
+        in_z_region = np.logical_and(a >= self.linthresh, a <= (1 - self.linthresh))
 
         transformed[in_z_region] = interval_convert(
             value=scipy.stats.norm.ppf(q=a[in_z_region]),
@@ -121,7 +120,7 @@ class ProbitTransform(matplotlib.transforms.Transform):
         lower_linear = np.logical_and(np.logical_not(in_z_region), a < self.linthresh)
 
         transformed[lower_linear] = interval_convert(
-            value=transformed[lower_linear],
+            value=a[lower_linear],
             old_interval=(0, self.linthresh),
             new_interval=(0, self.linscale),
         )
@@ -129,7 +128,7 @@ class ProbitTransform(matplotlib.transforms.Transform):
         upper_linear = np.logical_and(np.logical_not(in_z_region), a > (1 - self.linthresh))
 
         transformed[upper_linear] = interval_convert(
-            value=transformed[upper_linear],
+            value=a[upper_linear],
             old_interval=(1 - self.linthresh, 1),
             new_interval=(1 - self.linscale, 1),
         )

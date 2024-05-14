@@ -64,7 +64,6 @@ envs.docs.scripts.build = "sphinx-build docs/ public"
 envs.docs.scripts.jupyterlab = "jupyter lab"
 envs.docs.extra-dependencies = [
   "sphinx",
-  "sphinx_rtd_theme",
   "myst-nb",
   "jupyterlab",
   "watermark",
@@ -73,6 +72,9 @@ envs.docs.extra-dependencies = [
   "matplotlib",
   "pyqt6",
   "sphinx-autodoc-typehints",
+  "ipympl",
+  "graphviz",
+  "furo",
 ]
 
 # tests
