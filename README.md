@@ -9,9 +9,12 @@ According to the LATER model, a response time on a single trial is given by the 
 
 This library provides three main features:
 
-* A LATER distribution class that can be used in PyMC models.
-* A visualisation helper to produce Matplotlib figures in the 'reciprobit' space used by LATER practitioners.
-* Example data digitised from Carpenter & Williams (1995).
+* A LATER distribution class that can be used in PyMC models (`pylater.LATER`).
+* A visualisation helper to produce Matplotlib figures in the 'reciprobit' space used by LATER practitioners (`pylater.ReciprobitPlot`).
+* An example of a model constructed with default priors (`pylater.build_default_model`).
+* Reaction time data digitised from Carpenter & Williams (1995) (`pylater.data.cw1995`).
+
+![Example reciprobit plot](docs/_static/pylater_example.png "Title")
 
 > [!NOTE]
 > Also see [LATERmodel](https://unimelbmdap.github.io/LATERmodel/) for an R package with a non-Bayesian implementation of LATER and with a [graphical interface](https://later.researchsoftware.unimelb.edu.au/).
