@@ -3,7 +3,14 @@ from __future__ import annotations
 import enum
 import typing
 
+import numpy as np
+
+import scipy.stats
+
+import xarray as xr
+
 import arviz as az
+
 import matplotlib as mpl
 import matplotlib.axes
 import matplotlib.figure
@@ -11,10 +18,6 @@ import matplotlib.pyplot as plt
 import matplotlib.scale
 import matplotlib.ticker
 import matplotlib.transforms
-
-import numpy as np
-import scipy.stats
-import xarray as xr
 
 import pylater.axes
 
@@ -359,7 +362,7 @@ class ReciprobitPlot:
             fill_kwargs = {}
         if line_kwargs is None:
             line_kwargs = {}
-            
+
         pred_type = PredictiveDataType(predictive_type)
 
         x_rt_s = np.logspace(

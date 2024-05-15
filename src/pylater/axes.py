@@ -3,14 +3,16 @@ from __future__ import annotations
 import enum
 import typing
 
+import numpy as np
+import numpy.typing as npt
+
+import scipy.stats
+
 import matplotlib.axes
 import matplotlib.figure
 import matplotlib.scale
 import matplotlib.ticker
 import matplotlib.transforms
-import numpy as np
-import numpy.typing as npt
-import scipy.stats
 
 
 class AxisType(enum.Enum):

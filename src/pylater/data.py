@@ -6,15 +6,36 @@ import pathlib
 
 import numpy as np
 import numpy.typing as npt
+
 import scipy.stats
 
 
 class Dataset:
     __slots__ = ("name", "rt_s", "promptness", "ecdf", "ecdf_p", "ecdf_x")
 
-    def __init__(self, name: str, rt_s: npt.NDArray[np.float64]) -> None:
+    def __init__(
+        self,
+        name: str,
+        rt_s: npt.ArrayLike,
+    ) -> None:
+        """
+        Create a dataset from observed reaction times.
+
+        Parameters
+        ----------
+        name
+            Name of the dataset.
+        rt_s
+            Reaction times, in seconds.
+
+        Returns
+        -------
+        Dataset
+            The dataset.
+        """
+
         self.name = name
-        self.rt_s = rt_s
+        self.rt_s: npt.NDArray[np.float64] = np.array(rt_s, dtype=np.float64)
 
         self.promptness = 1.0 / self.rt_s
 

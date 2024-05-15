@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import enum
 import typing
+import warnings
 
 import numpy as np
 
@@ -21,6 +22,33 @@ def build_default_model(
     datasets: typing.Sequence[pylater.data.Dataset],
     share_type: str | None = None,
 ) -> pm.Model:
+    """
+    Assemble a LATER model using a default set of priors.
+
+    Parameters
+    ----------
+    datasets
+        Observed data to model.
+    share_type
+        With multiple datasets, parameters can be shared according to a 'shift'
+        or a 'swivel' arrangement.
+
+    Returns
+    -------
+    pm.Model
+        The PyMC model.
+
+    Notes
+    -----
+    * This uses a default set of priors that may not be appropriate for a given use
+    case. A warning is raised to highlight this; it can be silenced using the `warnings`
+    built-in package.
+    """
+
+    warnings.warn(
+        message="Note that this uses priors that may not be appropriate for your use case",
+        stacklevel=2,
+    )
 
     sharing = (
         ShareType(share_type)
@@ -29,6 +57,11 @@ def build_default_model(
     )
 
     n_datasets = len(datasets)
+
+    if n_datasets > 1 and sharing is None:
+        raise ValueError(
+            "With multiple datasets, must provide a `share_type` argument"
+        )
 
     dataset_names = [dataset.name for dataset in datasets]
 
