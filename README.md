@@ -22,7 +22,7 @@ An example of a reciprobit plot, showing a condition from Carpenter & Williams (
 The library can be installed using `pip`:
 
 ```bash
-pip install pylater
+pip install https://github.com/unimelbmdap/pylater
 ```
 
 ## Quickstart

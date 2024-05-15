@@ -12,6 +12,7 @@ extensions = [
     "sphinx_rtd_theme",
     "myst_nb",
     "sphinx_autodoc_typehints",
+    "sphinxcontrib.bibtex",
 ]
 
 nb_execution_timeout = -1
@@ -36,6 +37,9 @@ autodoc_preserve_defaults = True
 autoclass_content = "init"
 
 typehints_use_signature = True
+
+bibtex_bibfiles = ["refs.bib"]
+bibtex_reference_style = "author_year"
 
 def setup(app):
     app.add_css_file("types_fix.css")

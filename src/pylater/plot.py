@@ -178,7 +178,7 @@ class ReciprobitPlot:
         if "label" not in kwargs:
             kwargs["label"] = data.name
 
-        if "color" not in kwargs or "c" not in kwargs:
+        if "color" not in kwargs and "c" not in kwargs:
             kwargs["c"] = "black"
 
         if data_plot_type is DataPlotType.STEP:

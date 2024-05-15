@@ -75,6 +75,7 @@ envs.docs.extra-dependencies = [
   "sphinx_rtd_theme",
   "ipympl",
   "graphviz",
+  "sphinxcontrib-bibtex",
   "furo",
 ]
 
