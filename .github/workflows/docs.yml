@@ -50,6 +50,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/.cache/myst_nb
+        key: myst_nb
 
     - name: Install Hatch
       run: pip install --upgrade hatch
