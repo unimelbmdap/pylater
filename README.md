@@ -10,7 +10,9 @@ This library provides four main features:
 * An example of a model constructed with default priors (`pylater.build_default_model`).
 * Reaction time data digitised from Carpenter & Williams (1995) (`pylater.data.cw1995`).
 
-![Example reciprobit plot](docs/_static/pylater_example.png "Title")
+An example of a reciprobit plot, showing a condition from Carpenter & Williams (1995) and a summary of its posterior retrodictive distribution.
+
+![Example reciprobit plot](docs/_static/pylater_example.png)
 
 > [!NOTE]
 > Also see [LATERmodel](https://unimelbmdap.github.io/LATERmodel/) for an R package with a non-Bayesian implementation of LATER and with a [graphical interface](https://later.researchsoftware.unimelb.edu.au/).
@@ -23,7 +25,42 @@ The library can be installed using `pip`:
 pip install pylater
 ```
 
-## Usage
+## Quickstart
+
+```python
+import pymc as pm
+import pylater
+
+# load the data from the 50% condition from participant a
+data = pylater.data.cw1995["a_p50"]
+
+# build a default PyMC model
+model = pylater.model.build_default_model(datasets=[data])
+
+# sample prior predictives
+with model:
+    idata = pm.sample_prior_predictive()
+
+# visualise prior predictives using a reciprobit plot
+priors_plot = pylater.ReciprobitPlot()
+priors_plot.plot_predictive(idata=idata, predictive_type="prior")
+
+# sample a posterior
+with model:
+    idata = pm.sample()
+
+# look at posterior statistics
+pm.stats.summary(data=idata)
+
+# sample posterior predictives
+with model:
+    idata = pm.sample_posterior_predictive(trace=idata, extend_inferencedata=True)
+
+# visualise posterior retrodictives using a reciprobit plot, with overlaid data
+posterior_plot = pylater.ReciprobitPlot()
+posterior_plot.plot_predictive(idata=idata, predictive_type="posterior")
+posterior_plot.plot_data(data=data)
+```
 
 
 
