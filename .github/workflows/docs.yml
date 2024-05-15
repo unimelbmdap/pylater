@@ -19,10 +19,6 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
-concurrency:
-  group: test-${{ github.head_ref }}
-  cancel-in-progress: true
-
 env:
   PYTHONUNBUFFERED: "1"
   FORCE_COLOR: "1"
