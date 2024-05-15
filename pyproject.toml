@@ -17,25 +17,23 @@ classifiers = [
   "Programming Language :: Python",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = []
-
-[project.urls]
-Documentation = "https://github.com/unimelbmdap/pylater"
-Issues = "https://github.com/unimelbmdap/pylater/issues"
-Source = "https://github.com/unimelbmdap/pylater"
-
-[tool.hatch]
-version.path = "src/pylater/__init__.py"
-envs.default.dependencies = [
+dependencies = [
   "numpy",
   "scipy",
   "pymc",
   "matplotlib",
   "xarray",
 ]
+
+[project.urls]
+Documentation = "https://unimelbmdap.github.io/pylater/"
+Issues = "https://github.com/unimelbmdap/pylater/issues"
+Source = "https://github.com/unimelbmdap/pylater"
+
+[tool.hatch]
+version.path = "src/pylater/__init__.py"
+#envs.default.dependencies = []
 
 # dev
 envs.dev.extra-dependencies = [
