@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "pylater"
 dynamic = ["version"]
-description = ''
+description = "A Python library for working with LATER ('Linear Approach to Threshold with Ergodic Rate for Reaction Times') models using Bayesian methods in PyMC."
 readme = "README.md"
 requires-python = ">=3.10,<3.12"
 license = "MIT"
@@ -39,9 +39,11 @@ version.path = "src/pylater/__init__.py"
 envs.dev.extra-dependencies = [
   "ruff",
   "black",
+  "sp-repo-review[cli]",
 ]
 envs.dev.scripts.lint = "ruff {args:check src/pylater tests}"
 envs.dev.scripts.style = "black {args:.}"
+envs.dev.scripts.review = "repo-review {args:.}"
 
 # ipython
 envs.interactive.extra-dependencies = [
@@ -88,6 +90,7 @@ python = ["3.10", "3.11"]
 [tool.mypy]
 plugins = "numpy.typing.mypy_plugin"
 # corresponding to --strict
+strict = true
 warn_unused_configs = true
 disallow_any_generics = true
 disallow_subclassing_any = true
@@ -102,7 +105,13 @@ warn_return_any = true
 no_implicit_reexport = true
 strict_equality = true
 extra_checks = true
+warn_unreachable = true
 untyped_calls_exclude = ["arviz"]
+enable_error_code = [
+  "ignore-without-code",
+  "redundant-expr",
+  "truthy-bool",
+]
 
 [[tool.mypy.overrides]]
 module = [
@@ -120,6 +129,7 @@ skip-string-normalization = false
 skip-magic-trailing-comma = false
 
 [tool.ruff]
+src = ["src"]
 exclude = []
 lint.select = [
   "E",  # error
@@ -136,7 +146,21 @@ lint.select = [
   "PERF",  # perflint
   "RUF",  # ruff
 ]
-target-version = "py310"
 lint.ignore = [
   "ANN101",  # typing self
 ]
+
+[tool.repo-review]
+ignore = [
+  "RTD",  # not using readthedocs
+  "RF102",  # not a fan of isort
+  "PC", "PY006",  # not using pre-commit
+]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = ["-ra", "--showlocals", "--strict-markers", "--strict-config"]
+xfail_strict = true
+filterwarnings = ["error"]
+log_cli_level = "info"
+testpaths = ["tests"]
