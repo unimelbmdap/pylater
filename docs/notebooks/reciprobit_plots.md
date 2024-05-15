@@ -12,6 +12,8 @@ kernelspec:
   name: python3
 ---
 
++++ {"editable": true, "slideshow": {"slide_type": ""}}
+
 # Reciprobit plots
 
 +++
@@ -31,6 +33,12 @@ tags: [remove-cell]
 First, we will import the necessary packages:
 
 ```{code-cell} ipython3
+---
+editable: true
+slideshow:
+  slide_type: ''
+tags: [remove-output]
+---
 import pylater
 import pylater.data
 ```

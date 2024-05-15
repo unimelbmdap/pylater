@@ -39,6 +39,7 @@ First, we will import the necessary packages:
 editable: true
 slideshow:
   slide_type: ''
+tags: [remove-output]
 ---
 import pymc as pm
 

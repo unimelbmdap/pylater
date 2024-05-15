@@ -18,7 +18,7 @@ extensions = [
 # myst_nb
 nb_execution_timeout = -1
 nb_execution_mode = "cache"
-nb_execution_cache_path = "~/.cache/myst_nb"
+nb_execution_cache_path = ".myst_nb_cache"
 
 templates_path = ["_templates"]
 exclude_patterns = []

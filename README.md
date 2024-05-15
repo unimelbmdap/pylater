@@ -27,7 +27,7 @@ pip install https://github.com/unimelbmdap/pylater
 
 ## Quickstart
 
-See the documentation for more information.
+See the [documentation](https://unimelbmdap.github.io/pylater/) for more information.
 
 ```python
 import pymc as pm

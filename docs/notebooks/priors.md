@@ -40,6 +40,7 @@ First, we will import the necessary packages:
 editable: true
 slideshow:
   slide_type: ''
+tags: [remove-output]
 ---
 import pymc as pm
 
@@ -102,6 +103,7 @@ First, we need to sample the prior predictives using PyMC:
 editable: true
 slideshow:
   slide_type: ''
+tags: [remove-output]
 ---
 with model:
     idata = pm.sample_prior_predictive()

@@ -41,11 +41,55 @@ The library can be installed using ``pip``:
 
     pip install https://github.com/unimelbmdap/pylater
 
-Usage
------
+Quickstart
+----------
+
+.. code-block:: python
+
+    import pymc as pm
+    import pylater
+
+    # load the data from the 50% condition from participant a
+    data = pylater.data.cw1995["a_p50"]
+
+    # build a default PyMC model
+    model = pylater.model.build_default_model(datasets=[data])
+
+    # sample prior predictives
+    with model:
+        idata = pm.sample_prior_predictive()
+
+    # visualise prior predictives using a reciprobit plot
+    priors_plot = pylater.ReciprobitPlot()
+    priors_plot.plot_predictive(idata=idata, predictive_type="prior")
+
+    # sample a posterior
+    with model:
+        idata = pm.sample()
+
+    # look at posterior statistics
+    pm.stats.summary(data=idata)
+
+    # sample posterior predictives
+    with model:
+        idata = pm.sample_posterior_predictive(trace=idata, extend_inferencedata=True)
+
+    # visualise posterior retrodictives using a reciprobit plot, with overlaid data
+    posterior_plot = pylater.ReciprobitPlot()
+    posterior_plot.plot_predictive(idata=idata, predictive_type="posterior")
+    posterior_plot.plot_data(data=data)
+
+Authors
+-------
+
+* Damien Mannion, Melbourne Data Analytics Platform (MDAP), University of Melbourne
+* Maria del Mar Quiroga, Melbourne Data Analytics Platform (MDAP), University of Melbourne
+* Edoardo Tescari, Melbourne Data Analytics Platform (MDAP), University of Melbourne
+* Andrew Anderson, Department of Optometry and Vision Sciences, University of Melbourne
 
 References
 ----------
 
 .. bibliography::
     
+

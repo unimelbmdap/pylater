@@ -41,7 +41,7 @@ jobs:
       if: runner.os == 'Linux'
       uses: actions/cache@v4
       with:
-        path: ~/.cache/pip
+        path: .cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
         restore-keys: ${{ runner.os }}-pip-
 
@@ -49,7 +49,7 @@ jobs:
       if: runner.os == 'Linux'
       uses: actions/cache@v4
       with:
-        path: ~/.cache/myst_nb
+        path: .myst_nb_cache
         key: myst_nb
 
     - name: Install Hatch
