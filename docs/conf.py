@@ -1,6 +1,6 @@
 import pylater
 
-project = "LATER modelling in Python"
+project = "pylater"
 copyright = "2024, MDAP"
 author = "MDAP"
 version = pylater.__version__
@@ -9,7 +9,7 @@ release = version
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
-    #"sphinx_rtd_theme",
+    "sphinx_rtd_theme",
     "myst_nb",
     "sphinx_autodoc_typehints",
 ]
@@ -21,7 +21,8 @@ exclude_patterns = []
 
 maximum_signature_line_length = 88
 
-html_theme = "furo" # "sphinx_rtd_theme"
+html_theme = "furo"
+html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
 
 html_show_copyright = False
@@ -32,6 +33,7 @@ html_theme_options = {}
 autodoc_typehints = "both"
 autodoc_member_order = "bysource"
 autodoc_preserve_defaults = True
+autoclass_content = "init"
 
 typehints_use_signature = True
 

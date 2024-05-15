@@ -41,8 +41,9 @@ def build_default_model(
     Notes
     -----
     * This uses a default set of priors that may not be appropriate for a given use
-    case. A warning is raised to highlight this; it can be silenced using the `warnings`
-    built-in package.
+      case. A warning is raised to highlight this; it can be silenced using the `warnings`
+      built-in package.
+
     """
 
     warnings.warn(
