@@ -1,7 +1,7 @@
 # pylater
 
 A Python library for working with LATER ('Linear Approach to Threshold with Ergodic Rate for Reaction Times') models using Bayesian methods in [PyMC](https://www.pymc.io).
-LATER is a model for distributions of reaction times, such as the time take for a person to press a button or to move their eyes after the onset of a task demand (see Carpenter & Noorani, 2023, for an overview of the model and its applications).
+LATER is a model for distributions of reaction times, such as the time taken for a person to press a button or to move their eyes after the onset of a task demand (see Carpenter & Noorani, 2023, for an overview of the model and its applications).
 
 This library provides four main features:
 
