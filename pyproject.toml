@@ -11,7 +11,7 @@ requires-python = ">=3.10,<3.12"
 license = "MIT"
 keywords = []
 authors = [
-  { name = "Damien Mannion", email = "damien@djmannion.net" },
+  {name = "Damien Mannion", email = "damien.mannion@unimelb.edu.au"},
 ]
 classifiers = [
   "Programming Language :: Python",
@@ -24,6 +24,7 @@ dependencies = [
   "pymc",
   "matplotlib",
   "xarray",
+  "arviz",
 ]
 
 [project.urls]
@@ -33,7 +34,6 @@ Source = "https://github.com/unimelbmdap/pylater"
 
 [tool.hatch]
 version.path = "src/pylater/__init__.py"
-#envs.default.dependencies = []
 
 # dev
 envs.dev.extra-dependencies = [
