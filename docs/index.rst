@@ -8,6 +8,7 @@ Documentation
     notebooks/reciprobit_plots
     notebooks/priors
     notebooks/model_fitting
+    notebooks/model_comparison
     api
 
 This is a Python library for working with LATER ('Linear Approach to Threshold with Ergodic Rate for Reaction Times') models using Bayesian methods in `PyMC <https://www.pymc.io>`_.

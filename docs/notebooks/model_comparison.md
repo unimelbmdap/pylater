@@ -18,7 +18,7 @@ kernelspec:
 
 +++ {"editable": true, "slideshow": {"slide_type": ""}}
 
-Here, we will look at an example of fitting a model to an example dataset.
+Here, we will look at how we can fit multiple datasets simultaneously with some shared parameters and how we can compare models with different sharing arrangements.
 
 ```{code-cell} ipython3
 ---
@@ -40,7 +40,10 @@ editable: true
 slideshow:
   slide_type: ''
 ---
+import matplotlib.pyplot as plt
+
 import pymc as pm
+import arviz as az
 
 import pylater
 import pylater.data
@@ -48,7 +51,11 @@ import pylater.data
 
 +++ {"editable": true, "slideshow": {"slide_type": ""}}
 
-We will use the 50% condition from participant 'a' in the example data provided in `pylater`:
+## Datasets
+
++++ {"editable": true, "slideshow": {"slide_type": ""}}
+
+We will use all of the conditions from participant 'b' in the example data provided in `pylater`:
 
 ```{code-cell} ipython3
 ---
@@ -56,12 +63,20 @@ editable: true
 slideshow:
   slide_type: ''
 ---
-dataset = pylater.data.cw1995["b_p50"]
+datasets = [
+    dataset
+    for dataset in pylater.data.cw1995.values()
+    if dataset.name.startswith("b")
+]
 ```
 
 +++ {"editable": true, "slideshow": {"slide_type": ""}}
 
-We can then build the model, using the default priors, via:
+## A 'shift' model
+
++++ {"editable": true, "slideshow": {"slide_type": ""}}
+
+In our first model that we will fit to the data, we will use a 'shift' sharing arrangement: the datasets will have a common standard deviation ($\sigma$) parameter.
 
 ```{code-cell} ipython3
 ---
@@ -69,44 +84,12 @@ editable: true
 slideshow:
   slide_type: ''
 ---
-model = pylater.build_default_model(datasets=[dataset])
+shift_model = pylater.build_default_model(datasets=datasets, share_type="shift")
 ```
 
 +++ {"editable": true, "slideshow": {"slide_type": ""}}
 
-We can then fit the model by using the `sample` function from PyMC:
-
-```{code-cell} ipython3
----
-editable: true
-slideshow:
-  slide_type: ''
-tags: [remove-output]
----
-with model:
-    idata = pm.sample(chains=4)
-```
-
-+++ {"editable": true, "slideshow": {"slide_type": ""}}
-
-We can then use the posterior summary methods from PyMC to evaluate the posteriors:
-
-```{code-cell} ipython3
----
-editable: true
-slideshow:
-  slide_type: ''
----
-pm.stats.summary(data=idata)
-```
-
-+++ {"editable": true, "slideshow": {"slide_type": ""}}
-
-We can futher evaluate the model fit by examining the distribution of draws from the fitted model - the posterior *retrodictive* distribution (see ["Towards a principled Bayesian workflow" by Michael Betancourt](https://betanalpha.github.io/assets/case_studies/principled_bayesian_workflow.html#143_Posterior_Retrodiction_Checks)):
-
-+++ {"editable": true, "slideshow": {"slide_type": ""}}
-
-First, we need to use PyMC to sample the posterior predictives:
+We then fit the model:
 
 ```{code-cell} ipython3
 ---
@@ -115,13 +98,21 @@ slideshow:
   slide_type: ''
 tags: [remove-output]
 ---
-with model:
-    idata = pm.sample_posterior_predictive(trace=idata, extend_inferencedata=True)
+with shift_model:
+    shift_idata = pm.sample()
 ```
 
 +++ {"editable": true, "slideshow": {"slide_type": ""}}
 
-We can then use the `plot_predictive` method of a `ReciprobitPlot` instance to visualise the posterior predictives:
+Note that there is a lot of data here, so sampling can take a little while - we are using fewer samples than typical in this example to allow for faster execution.
+
++++ {"editable": true, "slideshow": {"slide_type": ""}}
+
+## A 'swivel' model
+
++++ {"editable": true, "slideshow": {"slide_type": ""}}
+
+The second model will use a 'swivel' sharing arrangment: the datasets will have a common intercept ($k$) parameter.
 
 ```{code-cell} ipython3
 ---
@@ -129,17 +120,12 @@ editable: true
 slideshow:
   slide_type: ''
 ---
-plot = pylater.ReciprobitPlot()
-plot.plot_predictive(idata=idata, predictive_type="posterior");
+swivel_model = pylater.build_default_model(datasets=datasets, share_type="swivel")
 ```
 
 +++ {"editable": true, "slideshow": {"slide_type": ""}}
 
-In the above, we can see the 95% credible interval and median of the distribution of posterior predictive samples.
-
-+++ {"editable": true, "slideshow": {"slide_type": ""}}
-
-This becomes particularly useful when compared against the ECDF of the observed data:
+We then also fit this model:
 
 ```{code-cell} ipython3
 ---
@@ -147,14 +133,81 @@ editable: true
 slideshow:
   slide_type: ''
 ---
-plot = pylater.ReciprobitPlot()
-plot.plot_predictive(idata=idata, predictive_type="posterior");
-plot.plot_data(data=dataset);
+with swivel_model:
+    swivel_idata = pm.sample()
 ```
 
 +++ {"editable": true, "slideshow": {"slide_type": ""}}
 
-We can see a reasonably good correspondance between the observations and the draws from the fitted model.
+## Calculating log-likelihoods
+
++++ {"editable": true, "slideshow": {"slide_type": ""}}
+
+In order to compare the models, we first need to compute their log-likelihoods.
+
+```{code-cell} ipython3
+---
+editable: true
+slideshow:
+  slide_type: ''
+tags: [remove-output]
+---
+with shift_model:
+    shift_idata = pm.compute_log_likelihood(idata=shift_idata)
+with swivel_model:
+    swivel_idata = pm.compute_log_likelihood(idata=swivel_idata)
+```
+
++++ {"editable": true, "slideshow": {"slide_type": ""}}
+
+However, this has the log-likelihoods calculated separately for each dataset.
+We can use the helper function `pylater.combine_multiple_likelihoods` to gather them together:
+
+```{code-cell} ipython3
+---
+editable: true
+slideshow:
+  slide_type: ''
+---
+(shift_idata, swivel_idata) = (
+    pylater.combine_multiple_likelihoods(idata=idata)
+    for idata in (shift_idata, swivel_idata)
+)
+```
+
++++ {"editable": true, "slideshow": {"slide_type": ""}}
+
+## Comparing models
+
++++ {"editable": true, "slideshow": {"slide_type": ""}}
+
+We can then use the ArviZ function `az.compare` to do the model comparison:
+
+```{code-cell} ipython3
+---
+editable: true
+slideshow:
+  slide_type: ''
+tags: [remove-output]
+---
+comparison = az.compare(
+    compare_dict={"shift": shift_idata, "swivel": swivel_idata},
+    var_name="obs",
+)
+```
+
+```{code-cell} ipython3
+---
+editable: true
+slideshow:
+  slide_type: ''
+---
+comparison
+```
+
++++ {"editable": true, "slideshow": {"slide_type": ""}}
+
+See the [documentation for `az.compare`](https://python.arviz.org/en/stable/api/generated/arviz.compare.html) for details on interpreting this output.
 
 ```{code-cell} ipython3
 ---

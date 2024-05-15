@@ -79,6 +79,7 @@ We can then build the model, using the default priors, via:
 editable: true
 slideshow:
   slide_type: ''
+tags: [remove-output]
 ---
 model = pylater.build_default_model(datasets=[dataset])
 ```

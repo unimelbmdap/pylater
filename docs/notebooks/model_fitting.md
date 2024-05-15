@@ -68,6 +68,7 @@ We can then build the model, using the default priors, via:
 editable: true
 slideshow:
   slide_type: ''
+tags: [remove-output]
 ---
 model = pylater.build_default_model(datasets=[dataset])
 ```
@@ -102,7 +103,7 @@ pm.stats.summary(data=idata)
 
 +++ {"editable": true, "slideshow": {"slide_type": ""}}
 
-We can futher evaluate the model fit by examining the distribution of draws from the fitted model - the posterior *retrodictive* distribution (see ["Towards a principled Bayesian workflow" by Michael Betancourt](https://betanalpha.github.io/assets/case_studies/principled_bayesian_workflow.html#143_Posterior_Retrodiction_Checks)):
+We can futher evaluate the model fit by examining the distribution of draws from the fitted model - the posterior predictive distribution (better described as the posterior *retrodictive* distribution; see ["Towards a principled Bayesian workflow" by Michael Betancourt](https://betanalpha.github.io/assets/case_studies/principled_bayesian_workflow.html#143_Posterior_Retrodiction_Checks)):
 
 +++ {"editable": true, "slideshow": {"slide_type": ""}}
 

@@ -15,14 +15,16 @@ extensions = [
     "sphinxcontrib.bibtex",
 ]
 
+# myst_nb
 nb_execution_timeout = -1
+jupyter_execute_notebooks = "cache"
+jupyter_cache = "~/.cache/myst_nb"
 
 templates_path = ["_templates"]
 exclude_patterns = []
 
 maximum_signature_line_length = 88
 
-html_theme = "furo"
 html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
 
