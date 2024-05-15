@@ -60,7 +60,8 @@ envs.types.extra-dependencies = [
 envs.types.scripts.check = "mypy {args:src/pylater tests}"
 
 # docs
-envs.docs.scripts.build = "sphinx-build docs/ public"
+envs.docs.scripts.build = "sphinx-build docs/ gh-pages"
+envs.docs.scripts.build_clean = "sphinx-build --fresh-env docs/ gh-pages"
 envs.docs.scripts.jupyterlab = "jupyter lab"
 envs.docs.extra-dependencies = [
   "sphinx",
