@@ -83,6 +83,7 @@ In our first model that we will fit to the data, we will use a 'shift' sharing a
 editable: true
 slideshow:
   slide_type: ''
+tags: [remove-output]
 ---
 shift_model = pylater.build_default_model(datasets=datasets, share_type="shift")
 ```
@@ -119,6 +120,7 @@ The second model will use a 'swivel' sharing arrangment: the datasets will have 
 editable: true
 slideshow:
   slide_type: ''
+tags: [remove-output]
 ---
 swivel_model = pylater.build_default_model(datasets=datasets, share_type="swivel")
 ```
@@ -132,6 +134,7 @@ We then also fit this model:
 editable: true
 slideshow:
   slide_type: ''
+tags: [remove-output]
 ---
 with swivel_model:
     swivel_idata = pm.sample()
