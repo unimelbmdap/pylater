@@ -39,7 +39,7 @@ The library can be installed using ``pip``:
 
 .. code-block:: bash
 
-    pip install https://github.com/unimelbmdap/pylater
+    pip install git+https://github.com/unimelbmdap/pylater
 
 Quickstart
 ----------
