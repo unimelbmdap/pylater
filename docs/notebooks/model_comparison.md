@@ -20,16 +20,6 @@ kernelspec:
 
 Here, we will look at how we can fit multiple datasets simultaneously with some shared parameters and how we can compare models with different sharing arrangements.
 
-```{code-cell} ipython3
----
-editable: true
-slideshow:
-  slide_type: ''
-tags: [remove-cell]
----
-%matplotlib inline
-```
-
 +++ {"editable": true, "slideshow": {"slide_type": ""}}
 
 First, we will import the necessary packages:
@@ -39,9 +29,8 @@ First, we will import the necessary packages:
 editable: true
 slideshow:
   slide_type: ''
+tags: [remove-output]
 ---
-import matplotlib.pyplot as plt
-
 import pymc as pm
 import arviz as az
 
@@ -113,7 +102,7 @@ Note that there is a lot of data here, so sampling can take a little while - we 
 
 +++ {"editable": true, "slideshow": {"slide_type": ""}}
 
-The second model will use a 'swivel' sharing arrangment: the datasets will have a common intercept ($k$) parameter.
+The second model will use a 'swivel' sharing arrangement: the datasets will have a common intercept ($k$) parameter.
 
 ```{code-cell} ipython3
 ---
@@ -220,5 +209,5 @@ slideshow:
 tags: [remove-input]
 ---
 %load_ext watermark
-%watermark -n -u -v -iv -p matplotlib
+%watermark -n -u -v -iv
 ```

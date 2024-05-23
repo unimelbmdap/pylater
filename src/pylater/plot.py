@@ -75,8 +75,8 @@ class ReciprobitPlot:
         fix_ax
             An already-created figure/axes pair.
         min_rt_s, max_rt_s
-            Minimum and maxium reaction time values, in seconds, for the x axis.
-        p_min, p_max
+            Minimum and maximum reaction time values, in seconds, for the x axis.
+        min_p, max_p
             Minimum and maximum probability values, for the y axis.
         linthresh
             The y-axis is on a probit scale between `linthresh` and `1 - linthresh`,

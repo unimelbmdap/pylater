@@ -19,7 +19,7 @@ This library provides four main features:
 
 * A LATER distribution class that can be used in PyMC models (``pylater.LATER``).
 * A visualisation helper to produce Matplotlib figures in the 'reciprobit' space used by LATER practitioners (``pylater.ReciprobitPlot``).
-* An example of a model constructed with default priors (``pylater.build_default_model``).
+* A method for constructing models using default priors, with optional sharing of parameters across datasets in 'shift' or 'swivel' arrangements (``pylater.build_default_model``).
 * Reaction time data digitised from :cite:t:`Carpenter1995` (``pylater.data.cw1995``).
 
 .. figure:: _static/pylater_example.png
@@ -82,10 +82,10 @@ Quickstart
 Authors
 -------
 
-* Damien Mannion, Melbourne Data Analytics Platform (MDAP), University of Melbourne
-* Maria del Mar Quiroga, Melbourne Data Analytics Platform (MDAP), University of Melbourne
-* Edoardo Tescari, Melbourne Data Analytics Platform (MDAP), University of Melbourne
-* Andrew Anderson, Department of Optometry and Vision Sciences, University of Melbourne
+* Damien Mannion, Melbourne Data Analytics Platform (MDAP), The University of Melbourne
+* Maria del Mar Quiroga, Melbourne Data Analytics Platform (MDAP), The University of Melbourne
+* Edoardo Tescari, Melbourne Data Analytics Platform (MDAP), The University of Melbourne
+* Andrew Anderson, Department of Optometry and Vision Sciences, The University of Melbourne
 
 References
 ----------

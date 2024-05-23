@@ -7,7 +7,7 @@ This library provides four main features:
 
 * A LATER distribution class that can be used in PyMC models (`pylater.LATER`).
 * A visualisation helper to produce Matplotlib figures in the 'reciprobit' space used by LATER practitioners (`pylater.ReciprobitPlot`).
-* An method for constructing models using default priors, with optional sharing of parameters across datasets in 'shift' or 'swivel' arrangements (`pylater.build_default_model`).
+* A method for constructing models using default priors, with optional sharing of parameters across datasets in 'shift' or 'swivel' arrangements (`pylater.build_default_model`).
 * Reaction time data digitised from Carpenter & Williams (1995) (`pylater.data.cw1995`).
 
 An example of a reciprobit plot, showing a condition from Carpenter & Williams (1995) and a summary of its posterior retrodictive distribution:
@@ -15,7 +15,7 @@ An example of a reciprobit plot, showing a condition from Carpenter & Williams (
 ![Example reciprobit plot](docs/_static/pylater_example.png)
 
 > [!NOTE]
-> Also see [LATERmodel](https://unimelbmdap.github.io/LATERmodel/) for an R package with a non-Bayesian implementation of LATER and with a [graphical interface](https://later.researchsoftware.unimelb.edu.au/).
+> Also see [LATERmodel](https://unimelbmdap.github.io/LATERmodel/) for an R package with a non-Bayesian implementation of LATER and its associated [online R Shiny interface](https://later.researchsoftware.unimelb.edu.au/).
 
 ## Installation
 
@@ -66,10 +66,10 @@ posterior_plot.plot_data(data=data)
 
 ## Authors
 
-* Damien Mannion, Melbourne Data Analytics Platform (MDAP), University of Melbourne
-* Maria del Mar Quiroga, Melbourne Data Analytics Platform (MDAP), University of Melbourne
-* Edoardo Tescari, Melbourne Data Analytics Platform (MDAP), University of Melbourne
-* Andrew Anderson, Department of Optometry and Vision Sciences, University of Melbourne
+* Damien Mannion, Melbourne Data Analytics Platform (MDAP), The University of Melbourne
+* Maria del Mar Quiroga, Melbourne Data Analytics Platform (MDAP), The University of Melbourne
+* Edoardo Tescari, Melbourne Data Analytics Platform (MDAP), The University of Melbourne
+* Andrew Anderson, Department of Optometry and Vision Sciences, The University of Melbourne
 
 
 ## References

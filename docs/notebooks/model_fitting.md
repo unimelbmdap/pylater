@@ -156,7 +156,7 @@ plot.plot_data(data=dataset);
 
 +++ {"editable": true, "slideshow": {"slide_type": ""}}
 
-We can see a reasonably good correspondance between the observations and the draws from the fitted model.
+We can see a reasonably good correspondence between the observations and the draws from the fitted model.
 
 ```{code-cell} ipython3
 ---
