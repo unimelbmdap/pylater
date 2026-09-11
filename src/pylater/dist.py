@@ -6,6 +6,7 @@ import numpy.typing as npt
 import pymc as pm
 
 import pytensor.tensor as pt
+import pytensor.tensor.special
 
 
 class LATER:
@@ -65,11 +66,11 @@ class LATER:
 
 
 def logp(
-    value: pt.TensorVariable,  # type: ignore
-    mu: pt.TensorVariable,  # type: ignore
-    sigma: pt.TensorVariable,  # type: ignore
-    sigma_e: pt.TensorVariable,  # type: ignore
-) -> pt.TensorVariable:  # type: ignore
+    value: pt.TensorVariable,
+    mu: pt.TensorVariable,
+    sigma: pt.TensorVariable,
+    sigma_e: pt.TensorVariable,
+) -> pt.TensorVariable:
     early_mu = 0
 
     a = pm.Normal.logp(value=value, mu=mu, sigma=sigma) + pm.Normal.logcdf(
@@ -79,15 +80,15 @@ def logp(
         value=value, mu=mu, sigma=sigma
     )
 
-    return pt.logsumexp(x=pt.stack(tensors=(a, b), axis=0), axis=0)  # type: ignore
+    return pytensor.tensor.special.logsumexp(x=pt.stack(tensors=(a, b), axis=0), axis=0)
 
 
 def logcdf(
-    value: pt.TensorVariable,  # type: ignore
-    mu: pt.TensorVariable,  # type: ignore
-    sigma: pt.TensorVariable,  # type: ignore
-    sigma_e: pt.TensorVariable,  # type: ignore
-) -> pt.TensorVariable:  # type: ignore
+    value: pt.TensorVariable,
+    mu: pt.TensorVariable,
+    sigma: pt.TensorVariable,
+    sigma_e: pt.TensorVariable,
+) -> pt.TensorVariable:
     early_mu = 0
 
     a = pm.Normal.logcdf(value=value, mu=early_mu, sigma=sigma_e)

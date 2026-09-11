@@ -65,6 +65,7 @@ class ReciprobitPlot:
         linthresh: float = 0.1 / 100,
         linscale: float = 0.05,
         axis_position_offset: float = 4,
+        *,
         apply_style: bool = True,
     ) -> None:
         """
@@ -95,7 +96,7 @@ class ReciprobitPlot:
 
         self._style = ReciprobitPlot.style if apply_style else {}
 
-        with mpl.rc_context(rc=self.style):
+        with mpl.rc_context(rc=self.style):  # type: ignore[arg-type]
 
             (self.fig, self.ax) = (
                 fig_ax
@@ -149,7 +150,7 @@ class ReciprobitPlot:
         data: pylater.data.Dataset,
         plot_type: str = "step",
         n_points: int = 1000,
-        **kwargs: str | float,
+        **kwargs,
     ) -> ReciprobitPlot:
         """
         Plot an ECDF of data observations.
@@ -191,7 +192,7 @@ class ReciprobitPlot:
 
             trial_ecdf_p = data.ecdf.cdf.evaluate(x_rt_s)
 
-            with mpl.rc_context(rc=self.style):
+            with mpl.rc_context(rc=self.style):  # type: ignore[arg-type]
                 self.ax.step(
                     x_rt_s,
                     trial_ecdf_p,
@@ -201,7 +202,7 @@ class ReciprobitPlot:
 
         elif data_plot_type is DataPlotType.SCATTER:
 
-            with mpl.rc_context(rc=self.style):
+            with mpl.rc_context(rc=self.style):  # type: ignore[arg-type]
                 self.ax.scatter(
                     data.ecdf_x,
                     data.ecdf_p,
@@ -209,7 +210,7 @@ class ReciprobitPlot:
                     **kwargs,
                 )
 
-        with mpl.rc_context(rc=self.style):
+        with mpl.rc_context(rc=self.style):  # type: ignore[arg-type]
             plt.legend()
 
         return self
@@ -288,7 +289,7 @@ class ReciprobitPlot:
 
         quantiles = np.quantile(p, q=[0.5, lower_q, upper_q], axis=1)
 
-        with mpl.rc_context(rc=self.style):
+        with mpl.rc_context(rc=self.style):  # type: ignore[arg-type]
 
             if "alpha" not in fill_kwargs:
                 fill_kwargs["alpha"] = 0.5
@@ -314,7 +315,7 @@ class ReciprobitPlot:
                 **line_kwargs,
             )
 
-        with mpl.rc_context(rc=self.style):
+        with mpl.rc_context(rc=self.style):  # type: ignore[arg-type]
             plt.legend()
 
         return self
@@ -407,7 +408,7 @@ class ReciprobitPlot:
             q=[0.5, lower_q, upper_q],
         )
 
-        with mpl.rc_context(rc=self.style):
+        with mpl.rc_context(rc=self.style):  # type: ignore[arg-type]
 
             if "alpha" not in fill_kwargs:
                 fill_kwargs["alpha"] = 0.5
@@ -462,7 +463,8 @@ class ReciprobitPlot:
     @min_p.setter
     def min_p(self, value: float) -> None:
         if value < 0:
-            raise ValueError("`min_p` must be >= 0")
+            msg = "`min_p` must be >= 0"
+            raise ValueError(msg)
         self._min_p = value
         self.ax.set_ylim(ymin=value)
 
@@ -473,7 +475,8 @@ class ReciprobitPlot:
     @max_p.setter
     def max_p(self, value: float) -> None:
         if value > 1:
-            raise ValueError("`max_p` must be <= 1")
+            msg = "`max_p` must be <= 1"
+            raise ValueError(msg)
         self._max_p = value
         self.ax.set_ylim(ymax=value)
 

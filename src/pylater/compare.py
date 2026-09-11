@@ -4,15 +4,17 @@ import typing
 
 import xarray as xr
 
-import arviz as az
+if typing.TYPE_CHECKING:
+    import arviz as az
 
 
 def combine_multiple_likelihoods(
     idata: az.data.inference_data.InferenceData,
     combined_var_name: str = "obs",
     var_names : typing.Sequence[str] | None = None,
-    overwrite: bool = False,
     combined_dim_name: str = "trial",
+    *,
+    overwrite: bool = False,
     copy_idata: bool = False,
 ) -> az.data.inference_data.InferenceData:
     """
@@ -27,10 +29,10 @@ def combine_multiple_likelihoods(
     var_names
         Variable names to include in the combination; if `None`, include all
         variables with a likelihood.
-    overwrite
-        Whether to overwrite `combined_var_name`, if it already exists.
     combined_dim_name
         Name of the combined dimension.
+    overwrite
+        Whether to overwrite `combined_var_name`, if it already exists.
     copy_idata
         Whether to add the new variable to the provided `idata` or to a copy.
 
@@ -41,9 +43,8 @@ def combine_multiple_likelihoods(
     """
 
     if not hasattr(idata, "log_likelihood"):
-        raise ValueError(
-            "No log-likelihood found in `idata`; use `pm.compute_log_likelihood()`"
-        )
+        msg = "No log-likelihood found in `idata`; use `pm.compute_log_likelihood()`"
+        raise ValueError(msg)
 
     if combined_var_name in idata.log_likelihood and not overwrite:
         msg = f"Variable {combined_var_name} already exists; either remove or set `overwrite=True`"
@@ -52,14 +53,12 @@ def combine_multiple_likelihoods(
     ll_var_names = (
         list(var_names)
         if var_names is not None
-        else [
-            var_name
-            for var_name in idata.log_likelihood
-        ]
+        else list(idata.log_likelihood)
     )
 
     if len(ll_var_names) == 0:
-        raise ValueError("No log-likelihood values found")
+        msg = "No log-likelihood values found"
+        raise ValueError(msg)
 
     modified_idata = (
         idata.copy()

@@ -60,9 +60,8 @@ def build_default_model(
     n_datasets = len(datasets)
 
     if n_datasets > 1 and sharing is None:
-        raise ValueError(
-            "With multiple datasets, must provide a `share_type` argument"
-        )
+        msg = "With multiple datasets, must provide a `share_type` argument"
+        raise ValueError(msg)
 
     dataset_names = [dataset.name for dataset in datasets]
 

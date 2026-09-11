@@ -54,10 +54,8 @@ class ReciprobitTimeScale(matplotlib.scale.ScaleBase):
 
     def __init__(
         self,
-        axis: matplotlib.axis.Axis,
         axis_type: AxisType = AxisType.TIME,
     ) -> None:
-        super().__init__(axis=axis)
         self.axis_type = axis_type
 
     def get_transform(self) -> matplotlib.transforms.Transform:
@@ -71,7 +69,7 @@ class ReciprobitTimeScale(matplotlib.scale.ScaleBase):
                 if x <= 0:
                     return ""
                 return f"{1 / x:,.2g}"
-            return ""
+            typing.assert_never(AxisType)
 
         axis.set_major_formatter(
             formatter=matplotlib.ticker.FuncFormatter(func=_tick_formatter)
@@ -207,11 +205,9 @@ class ProbitScale(matplotlib.scale.ScaleBase):
 
     def __init__(
         self,
-        axis: matplotlib.axis.Axis,
         linthresh: float = 0.1 / 100,
         linscale: float = 0.05,
     ) -> None:
-        super().__init__(axis=axis)
 
         self._transform = ProbitTransform(
             linthresh=linthresh,
@@ -238,10 +234,7 @@ class ProbitScale(matplotlib.scale.ScaleBase):
         return (minpos if vmin <= 0 else vmin, 1 - minpos if vmax >= 1 else vmax)
 
 
-T = typing.TypeVar("T", float, npt.NDArray[np.float64])
-
-
-def interval_convert(
+def interval_convert[T: (float, npt.NDArray[np.float64])](
     value: T,
     old_interval: tuple[float, float],
     new_interval: tuple[float, float],

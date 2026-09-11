@@ -1,166 +1,110 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [project]
 name = "pylater"
-dynamic = ["version"]
+version = "0.1.0"
 description = "A Python library for working with LATER ('Linear Approach to Threshold with Ergodic Rate for Reaction Times') models using Bayesian methods in PyMC."
 readme = "README.md"
-requires-python = ">=3.10,<3.12"
-license = "MIT"
-keywords = []
 authors = [
-  {name = "Damien Mannion", email = "damien.mannion@unimelb.edu.au"},
+    { name = "Damien Mannion", email = "damien.mannion@unimelb.edu.au" }
 ]
-classifiers = [
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-]
+requires-python = ">=3.12"
+license = "MIT"
 dependencies = [
-  "numpy",
-  "scipy",
-  "pymc",
-  "matplotlib",
-  "xarray",
-  "arviz",
+    "arviz[netcdf4]>=1.0",
+    "matplotlib",
+    "numba",
+    "numpy",
+    "pymc>=6.0.0",
+    "scipy",
+    "xarray",
 ]
 
-[project.urls]
-Documentation = "https://unimelbmdap.github.io/pylater/"
-Issues = "https://github.com/unimelbmdap/pylater/issues"
-Source = "https://github.com/unimelbmdap/pylater"
+[project.scripts]
+pylater = "pylater:main"
 
-[tool.hatch]
-version.path = "src/pylater/__init__.py"
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
 
-# dev
-envs.dev.extra-dependencies = [
-  "ruff",
-  "black",
-  "sp-repo-review[cli]",
-]
-envs.dev.scripts.lint = "ruff {args:check src/pylater tests}"
-envs.dev.scripts.style = "black {args:.}"
-envs.dev.scripts.review = "repo-review {args:.}"
-
-# ipython
-envs.interactive.extra-dependencies = [
-  "ipython",
-  "pyqt6",
-  "pickleshare",
-]
-envs.interactive.scripts.session = "ipython --pylab=qt"
-
-# mypy
-envs.types.extra-dependencies = [
-  "mypy"
-]
-envs.types.scripts.check = "mypy {args:src/pylater tests}"
-
-# docs
-envs.docs.scripts.build = "sphinx-build docs/ gh-pages"
-envs.docs.scripts.build_clean = "sphinx-build --fresh-env docs/ gh-pages"
-envs.docs.scripts.jupyterlab = "jupyter lab"
-envs.docs.extra-dependencies = [
-  "sphinx",
-  "myst-nb",
-  "jupyterlab",
-  "watermark",
-  "ipywidgets",
-  "jupytext",
-  "matplotlib",
-  "pyqt6",
-  "sphinx-autodoc-typehints",
-  "sphinx_rtd_theme",
-  "ipympl",
-  "graphviz",
-  "sphinxcontrib-bibtex",
-  "furo",
+[dependency-groups]
+dev = [
+    "mypy>=2.3.1",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.16.4",
+    "scipy-stubs>=1.18.1.0",
 ]
 
-# tests
-envs.tests.extra-dependencies = ["pytest"]
-envs.tests.scripts.test = "pytest {args}"
+# TASK RUNNER
+[tool.poe.executor]
+type = "uv"
 
-[[tool.hatch.envs.tests.matrix]]
-python = ["3.10", "3.11"]
+[tool.poe.tasks.lint]
+cmd = "ruff check"
+executor = {group = "dev"}
 
+[tool.poe.tasks.typecheck]
+cmd = "mypy ."
+executor = {group = "dev"}
+
+[tool.poe.tasks.test]
+cmd = "pytest --cov --cov-report term-missing"
+executor = {group = "dev"}
+
+# MYPY CONFIG
 [tool.mypy]
-plugins = "numpy.typing.mypy_plugin"
-# corresponding to --strict
 strict = true
-warn_unused_configs = true
-disallow_any_generics = true
-disallow_subclassing_any = true
-disallow_untyped_calls = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-disallow_untyped_decorators = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_return_any = true
-no_implicit_reexport = true
-strict_equality = true
-extra_checks = true
 warn_unreachable = true
-untyped_calls_exclude = ["arviz"]
-enable_error_code = [
-  "ignore-without-code",
-  "redundant-expr",
-  "truthy-bool",
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+exclude = [
+  "docs/",
 ]
 
 [[tool.mypy.overrides]]
 module = [
-  "scipy",
-  "scipy.stats",
   "pymc",
+  "arviz",
+  "pytensor.*",
 ]
 ignore_missing_imports = true
 
-[tool.black]
-line-length = 88
-preview = false
-skip-source-first-line = false
-skip-string-normalization = false
-skip-magic-trailing-comma = false
-
+# RUFF CONFIG
 [tool.ruff]
-src = ["src"]
-exclude = []
+exclude = [
+  "docs",
+  "*.ipynb",
+  "tests/"
+]
 lint.select = [
-  "E",  # error
-  "F",  # pyflakes
-  "UP",  # pyupgrade
-  "N",  # pep8-naming
-  "ANN",  # flake8-annotations
-  "A",  # flake8-builtins
-  "PTH",  # flake8-usepathlib
-  "B",  # flake8-bugbear
-  "Q",  # flake8-quotes
-  "ARG",  # flake8-unused-arguments
-  "NPY",  # numpy
-  "PERF",  # perflint
-  "RUF",  # ruff
+  "ALL",
 ]
 lint.ignore = [
-  "ANN101",  # typing self
+  "PERF203",  # performance overhead from try/catch in loops
+  "I001",  # unsorted imports
+  "D",  # docs
+  "S311",  # random number generator warning
+  "COM812",  # trailing commas
+  "E501",  # line length
+  "RSE102",  # raise without brackets
+  "RET504",  # unnessary return assignment
+  "G004",  # logging using f-strings
+  "G003",  # logging using +
+  "TRY003",  # long exception messages
+  "S101",  # ok with assert
+  "C901",  # 'too complex'
+  "PLR0913",  # too many args in func def
+  "PLR0912",  # too many branches
+  "S324",  # insecure hash
+  "N812",  # lightning as L import
+  "S301",  # pickle security
+  "PLR0915",  # too many statements
+  "DTZ",  # require timezones
+  "N80",  # upper case names
+  "CPY001",  # copyright
+  "RUF018",
+  "ANN002", "ANN003",
+  "ERA001",
+  "UP032",
+  "PLR0917",
+  "RUF023",
+  "RUF022",
 ]
-
-[tool.repo-review]
-ignore = [
-  "RTD",  # not using readthedocs
-  "RF102",  # not a fan of isort
-  "PC", "PY006",  # not using pre-commit
-]
-
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = ["-ra", "--showlocals", "--strict-markers", "--strict-config"]
-xfail_strict = true
-filterwarnings = ["error"]
-log_cli_level = "info"
-testpaths = ["tests"]
