@@ -95,7 +95,7 @@ def build_default_model(
         )
 
         sigma_all = pm.math.pt.repeat(
-            x=sigma,
+            a=sigma,
             repeats=n_datasets - n_sigma + 1,
         )
 
@@ -108,7 +108,7 @@ def build_default_model(
         )
 
         k_all = pm.math.pt.repeat(
-            x=k,
+            a=k,
             repeats=n_datasets - n_k + 1,
         )
 

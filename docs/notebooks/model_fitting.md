@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.16.2
+    jupytext_version: 1.19.5
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -167,4 +167,8 @@ tags: [remove-input]
 ---
 %load_ext watermark
 %watermark -n -u -v -iv -p matplotlib
+```
+
+```{code-cell} ipython3
+
 ```
