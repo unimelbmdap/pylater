@@ -29,17 +29,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v7
       with:
         python-version: "3.10"
         cache: "pip"
 
     - name: Set up pip cache
       if: runner.os == 'Linux'
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: .cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
@@ -47,7 +47,7 @@ jobs:
 
     - name: Set up jupyter cache
       if: runner.os == 'Linux'
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: .myst_nb_cache
         key: myst_nb
@@ -59,12 +59,12 @@ jobs:
       run: hatch run docs:build
 
     - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3.0.1
+      uses: actions/upload-pages-artifact@v5.0.0
       with:
         path: 'gh-pages'
 
     - name: Deploy to GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v4.0.5
+      uses: actions/deploy-pages@v5.0.1
 
 
